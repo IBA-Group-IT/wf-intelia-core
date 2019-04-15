@@ -7,11 +7,13 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.webharvest.utils.CommonUtil;
+
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
@@ -30,6 +32,8 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.ibagroup.wf.intelia.core.BindingUtils;
 import com.workfusion.utils.client.AmazonUtils;
+import com.workfusion.utils.client.S3ContextKeyDTO;
+
 import groovy.lang.Binding;
 
 public class S3Manager implements StorageManager {
@@ -121,7 +125,11 @@ public class S3Manager implements StorageManager {
     }
 
     private <T, R> R wrapTransferInvoke(Function<AmazonS3, R> func) {
-        AmazonS3 s3ClientConnection = AmazonUtils.createS3Client(s3AccessKey, s3SecretKey, s3EndpointUrl, null);
+    	S3ContextKeyDTO contextKeyDTO = new S3ContextKeyDTO();
+    	contextKeyDTO.setEndpointURL(s3EndpointUrl);
+    	contextKeyDTO.setPrivateKey(s3SecretKey);
+    	contextKeyDTO.setPublicKey(s3AccessKey);
+        AmazonS3 s3ClientConnection = AmazonUtils.createS3Client(contextKeyDTO, null);
         TransferManager manager = new TransferManager(s3ClientConnection);
         try {
             return func.apply(manager.getAmazonS3Client());

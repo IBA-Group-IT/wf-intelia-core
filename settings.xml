@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+
+    <localRepository>c:\Projects\Git\migrate_to_9.2\maven</localRepository>
+
+	<pluginGroups>
+		<pluginGroup>org.codehaus.cargo</pluginGroup>
+		<pluginGroup>org.apache.maven.plugins</pluginGroup>
+		<pluginGroup>org.codehaus.mojo</pluginGroup>
+	</pluginGroups>
+
+	<servers>
+		<server>
+			<id>nexusWf</id>
+			<username>odf-user</username>
+			<password>Workfusion!5</password>
+		</server>
+	</servers>
+
+	<profiles>
+		<profile>
+			<id>trunk</id>
+			<repositories>
+				<repository>
+					<id>nexusWf</id>
+					<url>https://repository.workfusion.com/content/repositories/wf-dependencies/</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+				</repository>
+			</repositories>
+
+ 			<pluginRepositories>
+<!--  				<pluginRepository>
+					<id>nexus</id>
+					<name>nexus</name>
+					<layout>default</layout>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+					<url>https://tools.standardbank.co.za/nexus/repository/public</url>
+				</pluginRepository>
+ -->
+				<pluginRepository>
+					<id>nexusWf</id>
+					<name>nexusWf</name>
+					<layout>default</layout>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+					<url>https://repository.workfusion.com/content/repositories/wf-dependencies/</url>
+				</pluginRepository>
+			</pluginRepositories>
+
+		</profile>
+
+	</profiles>
+
+	<activeProfiles>
+		<activeProfile>trunk</activeProfile>
+	</activeProfiles>
+
+   	<mirrors>
+ 		<mirror>
+			<id>snapshots</id>
+			<mirrorOf>snapshots</mirrorOf>
+			<url>https://repository.workfusion.com/content/repositories/snapshots/</url>
+		</mirror>
+		<mirror>
+			<id>releases</id>
+			<mirrorOf>releases</mirrorOf>
+			<url>https://repository.workfusion.com/content/repositories/releases/</url>
+		</mirror>
+  		<mirror>
+			<id>nexus</id>
+			<mirrorOf>central</mirrorOf>
+			<url>https://repo.maven.apache.org/maven2/</url>
+		</mirror>
+ 		<mirror>
+			<id>nexusWf</id>
+			<mirrorOf>*</mirrorOf>
+			<url>https://repository.workfusion.com/content/repositories/wf-dependencies/</url>
+		</mirror> 
+
+	</mirrors>
+
+</settings>

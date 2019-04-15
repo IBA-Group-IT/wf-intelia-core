@@ -11,7 +11,7 @@
 	<properties>
 		<project.build.javaVersion>1.8</project.build.javaVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<workfusion.version>9.0.0.7</workfusion.version>
+		<workfusion.version>9.2.0.3</workfusion.version>
 		<powermock.version>1.7.0</powermock.version>
 		<log4j.version>1.2.17</log4j.version>
 
@@ -225,10 +225,11 @@
 		</plugins>
 	</build>
 	
-	<ciManagement>
+<!-- 	<ciManagement>
 		<system>bamboo</system>
 		<url>http://bamboo.standardbank.co.za:8096/bamboo/browse/WOR-IAR</url>
 	</ciManagement>
+
 	<issueManagement>
 		<system>JIRA</system>
 		<url>http://jira.standardbank.co.za:8091/projects/RPIA</url>
@@ -243,7 +244,7 @@
 		<developerConnection>scm:git:ssh://git@stash.standardbank.co.za:7999/rpa/intelligent-automation.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
-
+ -->
 <!--
 	<distributionManagement>
 		<repository>

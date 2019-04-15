@@ -3,13 +3,13 @@ package com.ibagroup.wf.intelia.core.security;
 import com.freedomoss.crowdcontrol.webharvest.WebHarvestConstants;
 import com.freedomoss.crowdcontrol.webharvest.plugin.security.provider.ISecureEntryProvider;
 import com.freedomoss.crowdcontrol.webharvest.plugin.security.provider.SecureStoreProvider;
-import com.freedomoss.crowdcontrol.webharvest.plugin.security.service.ISecureStoreService;
 import com.freedomoss.crowdcontrol.webharvest.web.WebServiceConnectionProperties;
-import com.freedomoss.crowdcontrol.webharvest.web.dto.SecureEntryDTO;
 import com.ibagroup.wf.intelia.core.BindingUtils;
 import com.ibagroup.wf.intelia.core.CommonConstants;
 import com.ibagroup.wf.intelia.core.datastore.DataStoreQuery;
 import com.ibagroup.wf.intelia.core.datastore.DataStoreQuery.RowItem;
+import com.workfusion.bot.service.ISecureStoreService;
+import com.workfusion.bot.service.SecureEntryDTO;
 import com.workfusion.service.CachedWebServiceFactory;
 import com.workfusion.utils.security.Credentials;
 

@@ -1,7 +1,7 @@
 package com.ibagroup.wf.intelia.core.security;
 
 import com.drew.lang.annotations.SuppressWarnings;
-import com.freedomoss.crowdcontrol.webharvest.web.dto.SecureEntryDTO;
+import com.workfusion.bot.service.SecureEntryDTO;
 
 public class SecureEntryDtoWrapper extends SecureEntryDTO {
 
