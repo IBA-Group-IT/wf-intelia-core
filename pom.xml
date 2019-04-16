@@ -14,8 +14,6 @@
 		<workfusion.version>9.0.0.7</workfusion.version>
 		<powermock.version>1.7.0</powermock.version>
 		<log4j.version>1.2.17</log4j.version>
-
-        <mcb.repo.url>${env.MCBREPO}</mcb.repo.url>
 	</properties>
 
 	<dependencies>
@@ -231,13 +229,6 @@
 		<developerConnection>scm:git:https://github.com/IBA-Group-IT/wf-intelia-core.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
-
-    <distributionManagement>
-        <repository>
-            <id>mcb-repo</id>
-            <url>${mcb.repo.url}</url>
-        </repository>
-    </distributionManagement>
 
 	<profiles>
 		<profile>
