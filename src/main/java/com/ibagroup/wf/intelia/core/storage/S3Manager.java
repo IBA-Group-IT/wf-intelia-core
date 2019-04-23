@@ -28,8 +28,8 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.transfer.TransferManager;
+import com.ibagroup.wf.intelia.compatibility.MachineVersionAdaptations;
 import com.ibagroup.wf.intelia.core.BindingUtils;
-import com.workfusion.utils.client.AmazonUtils;
 import groovy.lang.Binding;
 
 public class S3Manager implements StorageManager {
@@ -91,7 +91,6 @@ public class S3Manager implements StorageManager {
         }
     }
 
-
     public boolean uploadFileWithFullAccess(String fullPath, InputStream input) {
 
         AccessControlList acl = new AccessControlList();
@@ -105,9 +104,7 @@ public class S3Manager implements StorageManager {
                 if (!(client.doesBucketExist(bucket))) {
                     client.createBucket(new CreateBucketRequest(bucket));
                 }
-                
-                
-                
+
                 PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, path, input, new ObjectMetadata()).withAccessControlList(acl);
 
                 client.putObject(putObjectRequest);
@@ -121,7 +118,7 @@ public class S3Manager implements StorageManager {
     }
 
     private <T, R> R wrapTransferInvoke(Function<AmazonS3, R> func) {
-        AmazonS3 s3ClientConnection = AmazonUtils.createS3Client(s3AccessKey, s3SecretKey, s3EndpointUrl, null);
+        AmazonS3 s3ClientConnection = MachineVersionAdaptations.getS3ClientConnection(s3AccessKey, s3SecretKey, s3EndpointUrl);
         TransferManager manager = new TransferManager(s3ClientConnection);
         try {
             return func.apply(manager.getAmazonS3Client());

@@ -1,32 +1,28 @@
 package com.ibagroup.wf.intelia.core.security;
 
-import com.freedomoss.crowdcontrol.webharvest.WebHarvestConstants;
-import com.freedomoss.crowdcontrol.webharvest.plugin.security.provider.ISecureEntryProvider;
-import com.freedomoss.crowdcontrol.webharvest.plugin.security.provider.SecureStoreProvider;
-import com.freedomoss.crowdcontrol.webharvest.plugin.security.service.ISecureStoreService;
-import com.freedomoss.crowdcontrol.webharvest.web.WebServiceConnectionProperties;
-import com.freedomoss.crowdcontrol.webharvest.web.dto.SecureEntryDTO;
-import com.ibagroup.wf.intelia.core.BindingUtils;
-import com.ibagroup.wf.intelia.core.CommonConstants;
-import com.ibagroup.wf.intelia.core.datastore.DataStoreQuery;
-import com.ibagroup.wf.intelia.core.datastore.DataStoreQuery.RowItem;
-import com.workfusion.service.CachedWebServiceFactory;
-import com.workfusion.utils.security.Credentials;
-
-import groovy.lang.Binding;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.context.ContextLoader;
+import com.ibagroup.wf.intelia.core.CommonConstants;
+import com.ibagroup.wf.intelia.core.datastore.DataStoreQuery;
+import com.ibagroup.wf.intelia.core.datastore.DataStoreQuery.RowItem;
+import groovy.lang.Binding;
 
+/**
+ * Machine-Agnostic Security Utils.
+ * <p>
+ * <b> No machine classes use is allowed </b>
+ * </p>
+ * 
+ * @author dmitriev
+ *
+ */
 public class SecurityUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(SecurityUtils.class);
@@ -61,16 +57,20 @@ public class SecurityUtils {
         }
     }
 
-    private List<SecureEntryDTO> secDs = new ArrayList<>();
+    private List<SecureEntryDtoWrapper> secDs = new ArrayList<>();
     private List<AliasDs> aliasDs = null;
-    private Binding binding = null;
 
     private DataStoreQuery dataStoreAccess;
+
+    private WfSecurityBridge wfSecurityBridge;
+
+    private Binding binding;
 
     /**
      * @param binding - Binding implementation, usually from webharvest config
      */
     public SecurityUtils(Binding binding) {
+        this.binding = binding;
         dataStoreAccess = new DataStoreQuery(binding);
         try {
             secDs = dataStoreAccess.executeQuery("SecureDataStore", "select * from @this;").getSelectResultAsListRows().get().stream().map(row -> {
@@ -100,20 +100,19 @@ public class SecurityUtils {
 
                     return aDs;
                 }).collect(Collectors.toList());
-        this.binding = binding;
     }
 
     /**
      * @param appName - alias name to look up on datastore aliasDs
-     * @return return List of SecureEntryDTO for security aliases stored in aliasDs for given
+     * @return return List of SecureEntryDtoWrapper for security aliases stored in aliasDs for given
      *         application alias aliasName
      */
-    public List<SecureEntryDTO> getListOfEntriesByAppName(String appName) {
+    public List<SecureEntryDtoWrapper> getListOfEntriesByAppName(String appName) {
         if (StringUtils.isBlank(appName)) {
             throw new IllegalArgumentException("Application alias name can't be empty");
         }
 
-        List<SecureEntryDTO> result = aliasDs.stream().filter((AliasDs aDs) -> appName.equalsIgnoreCase(aDs.getAppName()) ? true : false)
+        List<SecureEntryDtoWrapper> result = aliasDs.stream().filter((AliasDs aDs) -> appName.equalsIgnoreCase(aDs.getAppName()) ? true : false)
                 .map((AliasDs aDs) -> getSecureEntry(aDs.getAliasName())).collect(Collectors.toList());
         logger.info("Users list: " + result.toString());
         return result;
@@ -121,78 +120,23 @@ public class SecurityUtils {
 
     /**
      * @param appName - appName for creds
-     * @return random SecureEntryDTO for given alias
+     * @return random SecureEntryDtoWrapper for given alias
      */
-    public SecureEntryDTO getAnyCred(String appName) {
+    public SecureEntryDtoWrapper getAnyCred(String appName) {
         return getListOfEntriesByAppName(appName).stream().findAny().orElseGet(null);
-    }
-
-    private ISecureStoreService getService() {
-
-       // SecureStoreServiceFactory secureStoreServiceFactory = SecureStoreServiceFactory.getInstance();
-    	CachedWebServiceFactory secureStoreServiceFactory = CachedWebServiceFactory.getInstance();
-        WebServiceConnectionProperties connectionProperties = new WebServiceConnectionProperties();
-        Credentials credentials = BindingUtils.getUserCredentials(binding);
-        connectionProperties.setCredentials(credentials);
-
-        String applicationHostString = BindingUtils.getApplicationHost(binding);
-        connectionProperties.setWorkfusionHost(applicationHostString);
-        String contextPathString = BindingUtils.getApplicationContextPath(binding);
-        connectionProperties.setWorkfusionUrl(contextPathString);
-
-        ISecureStoreService secureStoreService = secureStoreServiceFactory.getOrCreateSecureStoreService(connectionProperties);
-
-        return secureStoreService;
-    }
-
-    private ISecureEntryProvider getPasswordProvider(String providerId) {
-        Map<?, ?> securityProviderMap = (Map<?, ?>) BindingUtils.getWrappedObjFromContext(binding, WebHarvestConstants.SECURITY_PROVIDER_MAP);
-
-        ISecureEntryProvider provider = securityProviderMap == null ? null : (ISecureEntryProvider) securityProviderMap.get(providerId);
-
-        if (provider == null) {
-            //provider = new SecureStoreProvider(getService(), BindingUtils.getPropertyValue(binding, WebHarvestConstants.SECURE_STORE_PASSWORD));
-            provider = new SecureStoreProvider(getService());
-
-        }
-        return provider;
-    }
-
-    private SecureEntryDTO getSecureEntryInternal(String provider, String aliasString) {
-        logger.info("Trying to get securityDTO for: " + aliasString);
-
-        return secDs.stream().filter((sec) -> sec.getAlias().equalsIgnoreCase(aliasString)).findAny().orElseGet(() -> {
-
-            ISecureEntryProvider entryProvider = getPasswordProvider(provider);
-            logger.info("entryProvider: " + entryProvider.toString());
-            Map<String, Object> params = new HashMap<>();
-            params.put(ISecureEntryProvider.PARAM_ALIAS, aliasString);
-
-            return new SecureEntryDtoWrapper(entryProvider.getUserSecureEntry(params));
-        });
-
     }
 
     /**
      * @param aliasString - alias name in secure data store
      * @return return Item from Security Storage for specific <code>aliasString</code>
      */
-    public SecureEntryDTO getSecureEntry(String aliasString) {
-        SecureEntryDTO entryInternalResult = getSecureEntryInternal(null, aliasString);
-        logger.info("entryInternalResult: " + entryInternalResult);
-        try {
-            if (entryInternalResult == null) {
-                ISecureStoreService service = ContextLoader.getCurrentWebApplicationContext().getBean(ISecureStoreService.class);
-                // SecureEntry
-                logger.info("service:" + service.toString());
-                //entryInternalResult = service.getEntry(aliasString, BindingUtils.getPropertyValue(binding, WebHarvestConstants.SECURE_STORE_PASSWORD));
-                entryInternalResult = service.getEntry(aliasString);
-            }
-        } catch (Throwable e) {
-            logger.error(e.toString());
-        }
+    public SecureEntryDtoWrapper getSecureEntry(String aliasString) {
+        logger.info("Trying to get securityDTO for: " + aliasString);
 
-        return entryInternalResult;
+        return secDs.stream().filter((sec) -> sec.getAlias().equalsIgnoreCase(aliasString)).findAny().orElseGet(() -> {
+            return getWfSecurityBridge().getUserSecureEntry(null, aliasString);
+        });
+
     }
 
     /**
@@ -207,8 +151,8 @@ public class SecurityUtils {
         dataStoreAccess.executeQuery("UserAliasesPerApplication", updateQuery);
     }
 
-    private SecureEntryDTO parseSec(List<RowItem> rowList) {
-        SecureEntryDTO secResult = new SecureEntryDtoWrapper();
+    private SecureEntryDtoWrapper parseSec(List<RowItem> rowList) {
+        SecureEntryDtoWrapper secResult = new SecureEntryDtoWrapper();
         for (Iterator<RowItem> iterator = rowList.iterator(); iterator.hasNext();) {
             RowItem item = iterator.next();
             switch (item.getColumn()) {
@@ -232,21 +176,15 @@ public class SecurityUtils {
         return secResult;
     }
 
-	/**
-	 * Update the secured storage entry
-	 * 
-	 * @param alias
-	 * @param key
-	 * @param value
-	 * @return
-	 */
-	public boolean updateEntry(String alias, String key, String value) {
-		boolean isSuccessful = true;
-		ISecureStoreService service = getService();
+    public WfSecurityBridge getWfSecurityBridge() {
+        if (wfSecurityBridge == null) {
+            wfSecurityBridge = new WfSecurityBridge(binding);
+        }
+        return wfSecurityBridge;
+    }
 
-		isSuccessful = service.updateEntry(alias, key, value);
-		logger.info("- SecureStorageUpdate - isSaveSuccessful = {} ", isSuccessful);
+    public void setWfSecurityBridge(WfSecurityBridge wfSecurityBridge) {
+        this.wfSecurityBridge = wfSecurityBridge;
+    }
 
-		return isSuccessful;
-	}
 }

@@ -1,23 +1,57 @@
 package com.ibagroup.wf.intelia.core.security;
 
+import java.util.Date;
 import com.drew.lang.annotations.SuppressWarnings;
-import com.freedomoss.crowdcontrol.webharvest.web.dto.SecureEntryDTO;
+import com.ibagroup.wf.intelia.compatibility.ISecureEntryDtoWrapper;
 
-public class SecureEntryDtoWrapper extends SecureEntryDTO {
+public class SecureEntryDtoWrapper {
 
-    public SecureEntryDtoWrapper() {
-        super();
+    public static ISecureEntryDtoWrapper<SecureEntryDtoWrapper> WRAPPER = (a, k, v, d) -> new SecureEntryDtoWrapper(a, k, v, d);
+
+    public String alias;
+    public String key;
+    public String value;
+    public Date lastUpdateDate;
+
+    public SecureEntryDtoWrapper() {}
+
+    public SecureEntryDtoWrapper(String alias, String key, String value, Date lastUpdateDate) {
+        this.alias = alias;
+        this.key = key;
+        this.value = value;
+        this.lastUpdateDate = lastUpdateDate == null ? null:new Date(lastUpdateDate.getTime());
     }
 
-    public SecureEntryDtoWrapper(String alias) {
-        super(alias);
+    public String getAlias() {
+        return this.alias;
     }
 
-    public SecureEntryDtoWrapper(SecureEntryDTO dto) {
-        setAlias(dto.getAlias());
-        setKey(dto.getKey());
-        setLastUpdateDate(dto.getLastUpdateDate());
-        setValue(dto.getValue());
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
+    public String getKey() {
+        return this.key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getValue() {
+        return this.value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public Date getLastUpdateDate() {
+        return lastUpdateDate == null ? null:new Date(lastUpdateDate.getTime());
+    }
+
+    public void setLastUpdateDate(Date lastUpdateDate) {
+        this.lastUpdateDate = lastUpdateDate == null ? null:new Date(lastUpdateDate.getTime());
     }
 
     @Override
@@ -39,7 +73,7 @@ public class SecureEntryDtoWrapper extends SecureEntryDTO {
             return false;
         }
 
-        SecureEntryDTO obj = (SecureEntryDTO) second;
+        SecureEntryDtoWrapper obj = (SecureEntryDtoWrapper) second;
 
         if (getAlias() == null) {
             if (obj.getAlias() != null) {
@@ -64,12 +98,12 @@ public class SecureEntryDtoWrapper extends SecureEntryDTO {
         } else if (!getValue().equals(obj.getValue())) {
             return false;
         }
-
         return true;
     }
 
     @Override
     public String toString() {
-        return "SecureEntryDtoWrapper - " + super.toString();
-    };
+        return "SecureEntryDtoWrapper [alias=" + this.alias + ", lastUpdateDate=" + this.lastUpdateDate + "]";
+    }
+
 }
