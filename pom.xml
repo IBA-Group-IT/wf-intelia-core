@@ -4,20 +4,22 @@
 
 	<profiles>
 		<profile>
-			<id>wf90</id>	
+			<id>wf90</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
-			</activation>						
+			</activation>
 			<properties>
 				<intelia.version>90</intelia.version>
+				<intelia.adaptations.version>90.0.0</intelia.adaptations.version>
 				<workfusion.version>9.0.0.7</workfusion.version>
 			</properties>
 		</profile>
 
 		<profile>
-			<id>wf92</id>	
+			<id>wf92</id>
 			<properties>
 				<intelia.version>92</intelia.version>
+				<intelia.adaptations.version>92.0.0</intelia.adaptations.version>
 				<workfusion.version>9.2.0.3</workfusion.version>
 			</properties>
 		</profile>
@@ -26,7 +28,7 @@
 	<groupId>com.ibagroup.wf</groupId>
 	<artifactId>intelia-core</artifactId>
 	<packaging>jar</packaging>
-	<version>${intelia.version}.0.1</version>
+	<version>${intelia.version}.0.2</version>
 
 	<name>Intelia Core Project</name>
 
@@ -38,6 +40,11 @@
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.ibagroup.wf</groupId>
+			<artifactId>intelia-core-adaptations</artifactId>
+			<version>${intelia.adaptations.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.powermock</groupId>
 			<artifactId>powermock-module-junit4</artifactId>
@@ -245,7 +252,33 @@
 					</execution>
 				</executions>
 			</plugin>
-
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>com.ibagroup.wf</groupId>
+									<artifactId>intelia-core-adaptations</artifactId>
+									<version>${intelia.adaptations.version}</version>
+									<type>jar</type>
+									<overWrite>false</overWrite>
+									<outputDirectory>${project.build.directory}/classes</outputDirectory>
+									<includes>**/*.class,**/*.xml</includes>
+									<excludes>**/*test.class,**/pom.xml</excludes>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

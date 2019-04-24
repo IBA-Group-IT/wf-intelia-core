@@ -1,4 +1,4 @@
-package za.co.standardbank.workfusion.rpa.core.mail;
+package com.ibagroup.wf.intelia.core.mail;
 
 import org.junit.Assert;
 import org.junit.Test;

@@ -2,7 +2,7 @@ package com.ibagroup.wf.intelia.core.security;
 
 import java.util.Date;
 import com.drew.lang.annotations.SuppressWarnings;
-import com.ibagroup.wf.intelia.compatibility.ISecureEntryDtoWrapper;
+import com.ibagroup.wf.intelia.core.adaptations.ISecureEntryDtoWrapper;
 
 public class SecureEntryDtoWrapper {
 

@@ -28,7 +28,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.transfer.TransferManager;
-import com.ibagroup.wf.intelia.compatibility.MachineVersionAdaptations;
+import com.ibagroup.wf.intelia.core.adaptations.MachineVersionAdaptations;
 import com.ibagroup.wf.intelia.core.BindingUtils;
 import groovy.lang.Binding;
 

@@ -1,4 +1,4 @@
-package za.co.standardbank.workfusion.rpa;
+package com.ibagroup.wf.intelia.core;
 
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 

@@ -1,7 +1,8 @@
 package com.ibagroup.wf.intelia.core.security;
 
+import static com.ibagroup.wf.intelia.core.adaptations.MachineVersionAdaptations.getISecureStoreServiceClass;
+import static com.ibagroup.wf.intelia.core.adaptations.MachineVersionAdaptations.wrap;
 import static com.ibagroup.wf.intelia.core.security.SecureEntryDtoWrapper.WRAPPER;
-import static com.ibagroup.wf.intelia.compatibility.MachineVersionAdaptations.*;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;

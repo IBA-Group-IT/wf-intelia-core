@@ -1,4 +1,4 @@
-package za.co.standardbank.workfusion.rpa.core;
+package com.ibagroup.wf.intelia.core;
 
 import java.text.ParseException;
 
