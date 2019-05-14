@@ -3,6 +3,8 @@
 .*
 !.project
 !.classpath
+!.gitlab-ci.yml
+!.m2
 /build.xml
 /maven-build.properties
 /maven-build.xml
