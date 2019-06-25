@@ -16,6 +16,13 @@ build90:
   script:
     - 'mvn -P wf90 $MAVEN_CLI_OPTS install'
     
+build91:
+  stage: build
+  tags: 
+    - DOCKER
+  script:
+    - 'mvn -P wf91 $MAVEN_CLI_OPTS install'
+    
 build92:
   stage: build
   tags: 
@@ -29,6 +36,15 @@ deploy90:
     - DOCKER
   script:
     - 'mvn -P wf90 $MAVEN_CLI_OPTS deploy'
+  only:
+    - master
+    
+deploy91:
+  stage: deploy
+  tags: 
+    - DOCKER
+  script:
+    - 'mvn -P wf91 $MAVEN_CLI_OPTS deploy'
   only:
     - master
     
