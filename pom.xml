@@ -36,7 +36,7 @@
 		<profile>
 			<id>wf93</id>
 			<properties>
-				<intelia.version>92</intelia.version>
+				<intelia.version>93</intelia.version>
 				<intelia.adaptations.version>92.0.0</intelia.adaptations.version>
 				<workfusion.version>9.3.0.0</workfusion.version>
 			</properties>
@@ -46,7 +46,7 @@
 	<groupId>com.ibagroup.wf</groupId>
 	<artifactId>intelia-core</artifactId>
 	<packaging>jar</packaging>
-	<version>${intelia.version}.0.5</version>
+	<version>${intelia.version}.0.6</version>
 
 	<name>Intelia Core Project</name>
 
