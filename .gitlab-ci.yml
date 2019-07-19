@@ -14,28 +14,28 @@ build90:
   tags: 
     - DOCKER
   script:
-    - 'mvn -P wf90 $MAVEN_CLI_OPTS install'
+    - 'mvn -P wf90 $MAVEN_CLI_OPTS clean install'
     
 build91:
   stage: build
   tags: 
     - DOCKER
   script:
-    - 'mvn -P wf91 $MAVEN_CLI_OPTS install'
+    - 'mvn -P wf91 $MAVEN_CLI_OPTS clean install'
     
 build92:
   stage: build
   tags: 
     - DOCKER
   script:
-    - 'mvn -P wf92 $MAVEN_CLI_OPTS install'
+    - 'mvn -P wf92 $MAVEN_CLI_OPTS clean install'
     
 build93:
   stage: build
   tags: 
     - DOCKER
   script:
-    - 'mvn -P wf93 $MAVEN_CLI_OPTS install'
+    - 'mvn -P wf93 $MAVEN_CLI_OPTS clean install'
     
 deploy90:
   stage: deploy
