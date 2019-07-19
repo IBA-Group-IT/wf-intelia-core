@@ -10,7 +10,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.ibagroup.wf.intelia.core.adaptations.MachineVersionAdaptations;
 import com.ibagroup.wf.intelia.core.annotations.OnError;
 
 import javassist.util.proxy.MethodHandler;
@@ -64,7 +64,7 @@ public abstract class MethodAdapter {
     public ReturnResult handlerError(Object self, Method thisMethod, Method proceed, Object[] args, Throwable throwable) {
         // invoking GenerateUuid method
         try {
-            Optional<Method> any = MethodUtils.getMethodsListWithAnnotation(self.getClass(), OnError.class).stream().findAny();
+            Optional<Method> any = MachineVersionAdaptations.findAllMehodsHavingAnnotation(self.getClass(), OnError.class);
             if (any.isPresent()) {
                 Method method = any.get();
 
