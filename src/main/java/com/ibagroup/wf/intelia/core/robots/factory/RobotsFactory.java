@@ -1,7 +1,6 @@
 package com.ibagroup.wf.intelia.core.robots.factory;
 
 import static com.ibagroup.wf.intelia.core.CommonConstants.IS_HANDLED;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,22 +12,29 @@ import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.ibagroup.wf.intelia.core.annotations.AfterInit;
 import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
 import com.ibagroup.wf.intelia.core.exceptions.ExceptionHandler;
 import com.ibagroup.wf.intelia.core.metadata.MetadataManager;
 import com.ibagroup.wf.intelia.core.robots.factory.MethodAdapter.ReturnResult;
-
 import groovy.lang.Binding;
 import javassist.util.proxy.MethodFilter;
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.ProxyFactory;
 
+/**
+ * Possible ways of creating a robot with the factory:
+ * <pre>
+ *  #1 Robot robot = new RobotsFactoryBuilder(binding).defaultSetup().build().newRobotInstance(Robot.class);
+ *  #2 Robot robot = <RobotsFactory.>defaultFactorySetup(binding).newRobotInstance(Robot.class);
+ * </pre>
+ * 
+ */
 public class RobotsFactory {
+   
     private static final Logger logger = LoggerFactory.getLogger(RobotsFactory.class);
     private final List<Class<? extends MethodWrapper>> methodWrappers = new ArrayList<>();
-
+    
     private final Binding binding;
 
     private final Map<Class<?>, Object> wiringObjects;
@@ -45,9 +51,31 @@ public class RobotsFactory {
         this.methodAdapterBuilder = methodAdapterBuilder;
         this.binding = (Binding) this.wiringObjects.get(Binding.class);
     }
-
-    @SuppressWarnings("unchecked")
+    
+    /**
+     * Shortcut for {@code new RobotsFactoryBuilder(binding).defaultSetup().build()}
+     */
+    public static RobotsFactory defaultFactorySetup(Binding binding) {
+        return new RobotsFactoryBuilder(binding).defaultSetup().build();
+    }
+    
+    /**
+     * Shortcut for {@code new RobotsFactoryBuilder(binding, throwException).defaultSetup().build()}
+     */
+    public static RobotsFactory defaultFactorySetup(Binding binding, boolean throwException) {
+        return new RobotsFactoryBuilder(binding).defaultSetup(throwException).build();
+    }
+    
+    /**
+     * @deprecated use {@link #newRobotInstance(Class) instead}
+     */
+    @Deprecated
     public <T> T newInstance(Class<T> clazz) {
+        return newRobotInstance(clazz);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public <T> T newRobotInstance(Class<T> clazz) {
         ProxyFactory factory = new ProxyFactory();
         factory.setSuperclass(clazz);
         List<Class<?>> ifs = getIfs();

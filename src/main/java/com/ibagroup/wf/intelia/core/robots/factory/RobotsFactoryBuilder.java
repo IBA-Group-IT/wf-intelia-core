@@ -5,22 +5,38 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+import org.apache.commons.lang3.StringUtils;
 import com.ibagroup.wf.intelia.core.CommonConstants;
+import com.ibagroup.wf.intelia.core.FlowContext;
 import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
 import com.ibagroup.wf.intelia.core.config.ConfigurationManager.Formatter;
+import com.ibagroup.wf.intelia.core.config.DataStoreConfiguration;
+import com.ibagroup.wf.intelia.core.exceptions.DefaultExceptionHandler;
 import com.ibagroup.wf.intelia.core.exceptions.ExceptionHandler;
+import com.ibagroup.wf.intelia.core.metadata.MetadataListManager;
 import com.ibagroup.wf.intelia.core.metadata.MetadataManager;
 import com.ibagroup.wf.intelia.core.metadata.storage.MetadataPermanentStorage;
+import com.ibagroup.wf.intelia.core.metadata.storage.MetadataStorage;
 import com.ibagroup.wf.intelia.core.mis.IRobotLogger;
-
+import com.ibagroup.wf.intelia.core.mis.RobotLogger;
+import com.ibagroup.wf.intelia.core.storage.S3Manager;
+import com.ibagroup.wf.intelia.core.storage.StorageManager;
 import groovy.lang.Binding;
 
+/**
+ * Default use:
+ * 
+ * <pre>
+ * RobotsFactory robotsFactory = new RobotsFactoryBuilder(binding).defaultInit().build();
+ * </pre>
+ * 
+ */
 public class RobotsFactoryBuilder {
 
     private boolean handlersInsideBinding = false;
 
     private Binding binding;
+    private FlowContext flowContext;
     private ExceptionHandler exceptionHandler;
     private ConfigurationManager configurationManager;
     private MetadataManager metadataManager;
@@ -29,37 +45,94 @@ public class RobotsFactoryBuilder {
 
     private List<Class<? extends MethodWrapper>> methodWrappers = new ArrayList<>();
 
-    private List<Object> wiringObjs = new ArrayList<>();
-
-    private boolean uploadAfterEachPerform = false;
-    private boolean uploadAfterFailure = true;
-
     private boolean doNotReThrowException = false;
     private boolean doNotUsePerformAdapter = false;
 
     private MethodAdapterBuilder methodAdapterBuilder;
     private MethodWrapperBuilder methodWrapperBuilder;
 
-    public RobotsFactory build() {
-        preBuild();
-        return new RobotsFactory(getMapOfWiredObjects(), getMethodWrappers(), doNotReThrowException, methodAdapterBuilder);
+    public RobotsFactoryBuilder(Binding binding) {
+        // binding is mandatory for builder
+        this.binding = binding;
+        this.flowContext = new FlowContext(binding);
+    }
+
+    /**
+     * Does following default setup
+     * <ul>
+     * <li>cfgManager - {@link DataStoreConfiguration}, from <b>rpa_config_ds</b></li>
+     * <li>activityManager - {@link MetadataListManager}</li>
+     * <li>activitiesStorage - {@link MetadataStorage}</li>
+     * <li>robotLogger - {@link RobotLogger}</li>
+     * <li>exceptionHandler - {@link DefaultExceptionHandler}</li>
+     * <li>re-throw exception - <b>false</b></li>
+     * </ul>
+     */
+    public RobotsFactoryBuilder defaultSetup() {
+        return defaultSetup(false, null);
+    }
+
+    /**
+     * Does following default setup
+     * <ul>
+     * <li>cfgManager - {@link DataStoreConfiguration}</li>
+     * <li>activityManager - {@link MetadataListManager}</li>
+     * <li>activitiesStorage - {@link MetadataStorage}</li>
+     * <li>robotLogger - {@link RobotLogger}</li>
+     * <li>exceptionHandler - {@link DefaultExceptionHandler}</li>
+     * <li>re-throw exception - <b>false</b></li>
+     * </ul>
+     */
+    public RobotsFactoryBuilder defaultSetup(String dsName) {
+        return defaultSetup(false, dsName);
+    }
+
+    /**
+     * Does following default setup
+     * <ul>
+     * <li>cfgManager - {@link DataStoreConfiguration}, from <b>rpa_config_ds</b></li>
+     * <li>activityManager - {@link MetadataListManager}</li>
+     * <li>activitiesStorage - {@link MetadataStorage}</li>
+     * <li>robotLogger - {@link RobotLogger}</li>
+     * <li>exceptionHandler - {@link DefaultExceptionHandler}</li>
+     * </ul>
+     */
+    public RobotsFactoryBuilder defaultSetup(boolean throwException) {
+        return defaultSetup(throwException, null);
+    }
+
+    /**
+     * Does following default setup
+     * <ul>
+     * <li>cfgManager - {@link DataStoreConfiguration}</li>
+     * <li>activityManager - {@link MetadataListManager}</li>
+     * <li>activitiesStorage - {@link MetadataStorage}</li>
+     * <li>robotLogger - {@link RobotLogger}</li>
+     * <li>exceptionHandler - {@link DefaultExceptionHandler}</li>
+     * </ul>
+     */
+    public RobotsFactoryBuilder defaultSetup(boolean throwException, String dsName) {
+        return defaultCfg(dsName).defaultActivityMgr().defaultActivitiesStorage(configurationManager).defaultRobotLogger(configurationManager).defaultExHandler().setDoNotReThrowException(!throwException);
     }
 
     @SuppressWarnings("unchecked")
-    protected void preBuild() {
+    public RobotsFactory build() {
         if (!doNotUsePerformAdapter) {
             // add default performMethodAdapter
             addMethodWrapper(PerformMethodWrapper.class);
+            // add default LoggerMethodWrapper
             addMethodWrapper(LoggerMethodWrapper.class);
         }
 
         boolean debugMode = configurationManager.getConfigItem(CommonConstants.DEBUG_MODE_ON, false, Formatter.BOOLEAN);
-        setUploadAfterEachPerform(debugMode);
+        boolean uploadAfterEachPerform = debugMode;
         // if debugMode is ON then upload metadata to S3 in any case
+        boolean uploadAfterFailure = true;
         if (!debugMode) {
-            setUploadAfterFailure(configurationManager.getConfigItem(CommonConstants.UPLOAD_AFTER_FAILURE, true, Formatter.BOOLEAN));
+            uploadAfterFailure = configurationManager.getConfigItem(CommonConstants.UPLOAD_AFTER_FAILURE, true, Formatter.BOOLEAN);
         }
 
+        // try set robotic env from binding if not set directly
         if (handlersInsideBinding && null != binding) {
             binding.getVariables().forEach((key, value) -> {
                 if (null == exceptionHandler && value instanceof ExceptionHandler) {
@@ -73,78 +146,36 @@ public class RobotsFactoryBuilder {
                 }
             });
         }
-        
+
         methodWrapperBuilder = new MethodWrapperBuilder(robotLogger);
-        methodAdapterBuilder = new MethodAdapterBuilder(binding, uploadAfterEachPerform, uploadAfterFailure, doNotReThrowException, metadataPermanentStorage, exceptionHandler, metadataManager, robotLogger, methodWrapperBuilder);
-        
+        methodAdapterBuilder = new MethodAdapterBuilder(binding, uploadAfterEachPerform, uploadAfterFailure, doNotReThrowException, metadataPermanentStorage, exceptionHandler,
+                metadataManager, robotLogger, methodWrapperBuilder);
+
+        return new RobotsFactory(getMapOfWiredObjects(), methodWrappers, doNotReThrowException, methodAdapterBuilder);
     }
 
-    public Map<Class<?>, Object> getMapOfWiredObjects() {
-        return Arrays.asList(exceptionHandler, configurationManager, metadataManager, robotLogger, binding).stream()
-                .filter(item -> item != null).filter(item -> null != item)
+
+    private Map<Class<?>, Object> getMapOfWiredObjects() {
+        return Arrays.asList(exceptionHandler, configurationManager, metadataManager, robotLogger, binding, flowContext).stream().filter(item -> item != null).filter(item -> null != item)
                 .collect(Collectors.toMap(value -> value.getClass(), value -> value, (value1, value2) -> value1));
-    }
-
-    public <T extends ConfigurationManager & ExceptionHandler & MetadataManager> RobotsFactoryBuilder initHandlers(T init) {
-        exceptionHandler = init;
-        configurationManager = init;
-        metadataManager = init;
-        return this;
     }
 
     public RobotsFactoryBuilder useBingingToFetchHandlers() {
         this.handlersInsideBinding = true;
         return this;
     }
-    
-    private RobotsFactoryBuilder setUploadAfterFailure(Boolean upload) {
-        this.uploadAfterFailure = upload;
+
+    public RobotsFactoryBuilder setDoNotReThrowException(boolean doNotReThrowException) {
+        this.doNotReThrowException = doNotReThrowException;
         return this;
-    }
-
-    public RobotsFactoryBuilder setUploadAfterFailure() {
-        this.uploadAfterFailure = true;
-        return this;
-    }
-
-    public boolean isUploadAfterFailure() {
-        return uploadAfterFailure;
-    }
-
-    private RobotsFactoryBuilder setUploadAfterEachPerform(Boolean upload) {
-        this.uploadAfterEachPerform = upload;
-        return this;
-    }
-
-    public RobotsFactoryBuilder uploadAfterEachPerform() {
-        this.uploadAfterEachPerform = true;
-        return this;
-    }
-
-    public boolean isUploadAfterEachPerform() {
-        return uploadAfterEachPerform;
     }
 
     public RobotsFactoryBuilder doNotReThrowException() {
-        this.doNotReThrowException = true;
-        return this;
-    }
-
-    public boolean isDoNotReThrowException() {
-        return doNotReThrowException;
-    }
-
-    public boolean isDoNotUsePerformAdapter() {
-        return doNotUsePerformAdapter;
+        return setDoNotReThrowException(true);
     }
 
     public RobotsFactoryBuilder doNotUsePerformAdapter() {
         this.doNotUsePerformAdapter = true;
-        return this;
-    }
-
-    public RobotsFactoryBuilder setBinding(Binding binding) {
-        this.binding = binding;
         return this;
     }
 
@@ -153,8 +184,8 @@ public class RobotsFactoryBuilder {
         return this;
     }
 
-    public ExceptionHandler getExHandler() {
-        return exceptionHandler;
+    public RobotsFactoryBuilder defaultExHandler() {
+        return setExHandler(new DefaultExceptionHandler(flowContext));
     }
 
     public RobotsFactoryBuilder setCfg(ConfigurationManager cfg) {
@@ -162,22 +193,17 @@ public class RobotsFactoryBuilder {
         return this;
     }
 
+    public RobotsFactoryBuilder defaultCfg(String dsName) {
+        return setCfg(new DataStoreConfiguration(binding, dsName));
+    }
+
     public RobotsFactoryBuilder setActivityMgr(MetadataManager activityMgr) {
         this.metadataManager = activityMgr;
         return this;
     }
 
-    public MetadataManager getActivityMgr() {
-        return metadataManager;
-    }
-
-    public RobotsFactoryBuilder addWiringObjs(Object obj) {
-        this.wiringObjs.add(obj);
-        return this;
-    }
-
-    public List<Object> getWiringObjs() {
-        return wiringObjs;
+    public RobotsFactoryBuilder defaultActivityMgr() {
+        return setActivityMgr(new MetadataListManager());
     }
 
     public RobotsFactoryBuilder setActivitiesStorage(MetadataPermanentStorage activitiesStorage) {
@@ -185,8 +211,27 @@ public class RobotsFactoryBuilder {
         return this;
     }
 
-    public MetadataPermanentStorage getActivitiesStorage() {
-        return metadataPermanentStorage;
+    public RobotsFactoryBuilder defaultActivitiesStorage(ConfigurationManager cfg) {
+        StorageManager storageMgr = new S3Manager(binding, cfg.getConfigItem("screenshots_bucket"), cfg.getConfigItem("screenshots_folder"));
+        return setActivitiesStorage(new MetadataStorage(binding, storageMgr, metadataManager, () -> {
+            String taskName = flowContext.getTaskName().equals("WWI TODO: Config name should be here") ? "local-task" : flowContext.getTaskName();
+
+            String submissionId = flowContext.getSubmissionId();
+            // String processGuid = BindingUtils.getPropertyValue(binding, PROCESS_UUID);
+            String processGuid = flowContext.getProcessGuid();
+            String taskPath = "";
+
+            if (StringUtils.isNotBlank(processGuid)) {
+                taskPath += processGuid + "/";
+            }
+
+            if (StringUtils.isNotBlank(submissionId)) {
+                taskPath += submissionId + "/";
+            }
+
+            taskPath += taskName;
+            return taskPath;
+        }));
     }
 
     public RobotsFactoryBuilder addMethodWrapper(Class<? extends MethodWrapper> methodWrapperClass) {
@@ -199,17 +244,13 @@ public class RobotsFactoryBuilder {
         return this;
     }
 
-    public List<Class<? extends MethodWrapper>> getMethodWrappers() {
-        return methodWrappers;
+    public RobotsFactoryBuilder setRobotLogger(IRobotLogger robotLogger) {
+        this.robotLogger = robotLogger;
+        return this;
     }
-
-	public IRobotLogger getRobotLogger() {
-		return robotLogger;
-	}
-
-	public RobotsFactoryBuilder setRobotLogger(IRobotLogger robotLogger) {
-		this.robotLogger = robotLogger;
-		return this;
-	}
+    
+    public RobotsFactoryBuilder defaultRobotLogger(ConfigurationManager cfg) {
+       return setRobotLogger(new RobotLogger(binding, cfg.getConfigItem("bp_actions"), cfg.getConfigItem("bp_details")));
+    }
 
 }
