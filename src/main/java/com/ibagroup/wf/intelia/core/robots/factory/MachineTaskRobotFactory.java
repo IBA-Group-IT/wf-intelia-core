@@ -1,35 +1,36 @@
 package com.ibagroup.wf.intelia.core.robots.factory;
 
-import com.ibagroup.wf.intelia.core.MachineTask;
-
 import groovy.lang.Binding;
 
+/**
+ * @deprecated {@link RobotsFactoryBuilder#defaultSetup()} instead.
+ *
+ */
+@Deprecated
 public class MachineTaskRobotFactory extends RobotsFactoryBuilder {
 
-	public MachineTaskRobotFactory(Binding binding) {
-		this(binding, false, null);
-	}
+    @Deprecated
+    public MachineTaskRobotFactory(Binding binding) {
+        super(binding);
+        defaultSetup();
+    }
 
-	public MachineTaskRobotFactory(Binding binding, String dsName) {
-		this(binding, false, dsName);
-	}
+    @Deprecated
+    public MachineTaskRobotFactory(Binding binding, String dsName) {
+        super(binding);
+        defaultSetup(dsName);
+    }
 
-	public MachineTaskRobotFactory(Binding binding, boolean throwException, String dsName) {
-		MachineTask baseRpa = new MachineTask(binding, dsName);
-		this.setActivityMgr(baseRpa);
-		this.setBinding(binding);
-		this.setExHandler(baseRpa);
-		this.setActivitiesStorage(baseRpa);
-		this.setRobotLogger(baseRpa);
-		this.setCfg(baseRpa);
+    @Deprecated
+    public MachineTaskRobotFactory(Binding binding, boolean throwException, String dsName) {
+        super(binding);
+        defaultSetup(throwException, dsName);
+    }
 
-		if (!throwException) {
-			doNotReThrowException();
-		}
-	}
-
-	public MachineTaskRobotFactory(Binding binding, boolean throwException) {
-		this(binding, throwException, null);
-	}
+    @Deprecated
+    public MachineTaskRobotFactory(Binding binding, boolean throwException) {
+        super(binding);
+        defaultSetup(throwException);
+    }
 
 }
