@@ -27,7 +27,7 @@ import groovy.lang.Binding;
  * Default use:
  * 
  * <pre>
- * RobotsFactory robotsFactory = new RobotsFactoryBuilder(binding).defaultInit().build();
+ * RobotsFactory robotsFactory = new RobotsFactoryBuilder(binding).defaultSetup().build();
  * </pre>
  * 
  */
