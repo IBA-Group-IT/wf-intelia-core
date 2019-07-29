@@ -48,9 +48,6 @@ public class RobotsFactoryBuilder {
     private boolean doNotReThrowException = false;
     private boolean doNotUsePerformAdapter = false;
 
-    private MethodAdapterBuilder methodAdapterBuilder;
-    private MethodWrapperBuilder methodWrapperBuilder;
-
     public RobotsFactoryBuilder(Binding binding) {
         // binding is mandatory for builder
         this.binding = binding;
@@ -147,8 +144,8 @@ public class RobotsFactoryBuilder {
             });
         }
 
-        methodWrapperBuilder = new MethodWrapperBuilder(robotLogger);
-        methodAdapterBuilder = new MethodAdapterBuilder(binding, uploadAfterEachPerform, uploadAfterFailure, doNotReThrowException, metadataPermanentStorage, exceptionHandler,
+        MethodWrapperBuilder methodWrapperBuilder = new MethodWrapperBuilder(robotLogger);
+        MethodAdapterBuilder methodAdapterBuilder = new MethodAdapterBuilder(binding, uploadAfterEachPerform, uploadAfterFailure, doNotReThrowException, metadataPermanentStorage, exceptionHandler,
                 metadataManager, robotLogger, methodWrapperBuilder);
 
         return new RobotsFactory(getMapOfWiredObjects(), methodWrappers, doNotReThrowException, methodAdapterBuilder);
