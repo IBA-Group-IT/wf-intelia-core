@@ -18,6 +18,11 @@ import com.ibagroup.wf.intelia.core.datastore.DataStoreAccess;
 import com.workfusion.utils.security.Credentials;
 import groovy.lang.Binding;
 
+/**
+ * @deprecated - Don't extend from RpaBaseTest unless you really need heavy framework work under test.
+ *
+ */
+@Deprecated
 @SuppressStaticInitializationFor({"com.ibagroup.wf.intelia.core.datastore.DataStoreAccess",
         "com.freedomoss.crowdcontrol.webharvest.plugin.datastore.service.RemoteDataStoreServiceFactory"})
 @PrepareForTest({DataStoreAccess.class, Method.class})

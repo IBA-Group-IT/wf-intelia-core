@@ -46,7 +46,7 @@
 	<groupId>com.ibagroup.wf</groupId>
 	<artifactId>intelia-core</artifactId>
 	<packaging>jar</packaging>
-	<version>${intelia.version}.0.7</version>
+	<version>${intelia.version}.0.8</version>
 
 	<name>Intelia Core Project</name>
 
@@ -89,7 +89,7 @@
 		<dependency>
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
-			<version>3.23.1-GA</version>
+			<version>3.22.0-GA</version>
 		</dependency>
 	</dependencies>
 

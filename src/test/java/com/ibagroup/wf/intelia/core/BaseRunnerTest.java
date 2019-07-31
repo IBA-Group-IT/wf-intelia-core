@@ -2,16 +2,11 @@ package com.ibagroup.wf.intelia.core;
 
 import static org.powermock.api.mockito.PowerMockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.whenNew;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.reflect.Whitebox;
-
-import com.ibagroup.wf.intelia.core.MachineTask;
 import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
 import com.ibagroup.wf.intelia.core.config.MapConfiguration;
 import com.ibagroup.wf.intelia.core.datastore.DataStoreAccess;
@@ -19,19 +14,19 @@ import com.ibagroup.wf.intelia.core.exceptions.ExceptionHandler;
 import com.ibagroup.wf.intelia.core.metadata.MetadataManager;
 import com.ibagroup.wf.intelia.core.mis.IRobotLogger;
 import com.ibagroup.wf.intelia.core.robots.RobotProtocol;
-import com.ibagroup.wf.intelia.core.robots.factory.MachineTaskRobotFactory;
 import com.ibagroup.wf.intelia.core.robots.factory.RobotsFactory;
 import com.ibagroup.wf.intelia.core.robots.factory.RobotsFactoryBuilder;
 
-@PrepareForTest({MachineTask.class, MachineTaskRobotFactory.class})
+/**
+ * @deprecated - Don't extend from RpaBaseTest unless you really need heavy framework work under test.
+ *
+ */
+@Deprecated
 public class BaseRunnerTest extends RpaBaseTest {
 
     public BaseRunnerTest() {
         super();
     }
-
-    @Mock
-    private MachineTask machineTask;
 
     private ConfigurationManager cfg;
     private ExceptionHandler exHandler;
@@ -43,8 +38,6 @@ public class BaseRunnerTest extends RpaBaseTest {
     public void initBase() throws Exception {
         Whitebox.setInternalState(DataStoreAccess.class, getDdssFactory());
         Whitebox.setInternalState(DataStoreAccess.class, getRdssFactory());
-
-        whenNew(MachineTask.class).withAnyArguments().thenReturn(machineTask);
     }
 
     protected <T extends RobotProtocol> T wrapRunner(T runner) {
@@ -82,8 +75,8 @@ public class BaseRunnerTest extends RpaBaseTest {
 
     public RobotsFactory getRunnersFactory() {
         if (null == robotsFactory) {
-            robotsFactory = Mockito.spy(new RobotsFactoryBuilder().setActivityMgr(getActivityMgr()).setExHandler(getExLogger()).setCfg(getCfg()).setRobotLogger(getRobotLogger())
-                    .setBinding(getBinding()).build());
+            robotsFactory = Mockito.spy(new RobotsFactoryBuilder(getBinding()).setActivityMgr(getActivityMgr()).setExHandler(getExLogger()).setCfg(getCfg()).setRobotLogger(getRobotLogger())
+                   .build());
         }
         return robotsFactory;
     }

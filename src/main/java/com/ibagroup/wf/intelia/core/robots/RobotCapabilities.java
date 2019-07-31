@@ -2,7 +2,7 @@ package com.ibagroup.wf.intelia.core.robots;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
+import com.ibagroup.wf.intelia.core.FlowContext;
 import com.ibagroup.wf.intelia.core.annotations.Wire;
 import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
 import com.ibagroup.wf.intelia.core.exceptions.ExceptionHandler;
@@ -18,6 +18,8 @@ public abstract class RobotCapabilities implements RobotProtocol {
 
 	@Wire
 	private Binding binding;
+	@Wire
+	private FlowContext flowContext;
 	@Wire
 	private ExceptionHandler exceptionHandler;
 	@Wire
@@ -54,6 +56,10 @@ public abstract class RobotCapabilities implements RobotProtocol {
 
 	public IRobotLogger getRobotLogger() {
 		return robotLogger;
+	}
+	
+	public FlowContext getFlowContext(){
+	    return flowContext;
 	}
 
 	@Override
