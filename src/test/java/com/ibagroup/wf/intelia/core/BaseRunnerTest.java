@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.reflect.Whitebox;
 import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
 import com.ibagroup.wf.intelia.core.config.MapConfiguration;
@@ -18,7 +17,11 @@ import com.ibagroup.wf.intelia.core.robots.RobotProtocol;
 import com.ibagroup.wf.intelia.core.robots.factory.RobotsFactory;
 import com.ibagroup.wf.intelia.core.robots.factory.RobotsFactoryBuilder;
 
-//@PrepareForTest({RobotsFactoryBuilder.class})
+/**
+ * @deprecated - Don't extend from RpaBaseTest unless you really need heavy framework work under test.
+ *
+ */
+@Deprecated
 public class BaseRunnerTest extends RpaBaseTest {
 
     public BaseRunnerTest() {
