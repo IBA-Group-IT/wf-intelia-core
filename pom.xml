@@ -46,7 +46,7 @@
 	<groupId>com.ibagroup.wf</groupId>
 	<artifactId>intelia-core</artifactId>
 	<packaging>jar</packaging>
-	<version>${intelia.version}.0.8</version>
+	<version>${intelia.version}.0.9</version>
 
 	<name>Intelia Core Project</name>
 
@@ -287,7 +287,7 @@
 									<artifactId>intelia-core-adaptations</artifactId>
 									<version>${intelia.adaptations.version}</version>
 									<type>jar</type>
-									<overWrite>false</overWrite>
+									<overWrite>true</overWrite>
 									<outputDirectory>${project.build.directory}/classes</outputDirectory>
 									<includes>**/*.class,**/*.xml</includes>
 									<excludes>**/*test.class,**/pom.xml</excludes>
