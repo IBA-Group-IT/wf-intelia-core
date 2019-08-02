@@ -7,7 +7,6 @@ variables:
 cache:
   paths:
     - .m2/repository
-    - target/
 
 build90:
   stage: build
