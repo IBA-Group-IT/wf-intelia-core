@@ -58,7 +58,7 @@ public class PerformMethodWrapper extends ChainMethodWrapper {
 
         try {
             // invoke next in chain
-            Object result = invokeNext(invocation);
+            Object result = invokeInner(invocation);
 
             RunnerContext.setRecordUuid(RunnerContextHelper.extractRecordUuid(invocation.getSelf()));
 

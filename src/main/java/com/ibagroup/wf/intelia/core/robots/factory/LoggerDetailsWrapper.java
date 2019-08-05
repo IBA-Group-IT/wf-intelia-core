@@ -41,7 +41,7 @@ public class LoggerDetailsWrapper extends ChainMethodWrapper {
             }
         });
 
-        Object result = invokeNext(invocation);
+        Object result = invokeInner(invocation);
 
         FieldUtils.getFieldsListWithAnnotation(invocation.getSelf().getClass(), LoggableField.class).stream().forEach(field -> {
             if (field.getAnnotation(LoggableField.class).phase().equals(LoggingPhase.ONCOMPLETION)) {

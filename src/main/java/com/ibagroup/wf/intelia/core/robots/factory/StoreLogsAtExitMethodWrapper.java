@@ -26,7 +26,7 @@ public class StoreLogsAtExitMethodWrapper extends ChainMethodWrapper {
     @Override
     Object wrap(Invocation invocation) throws Throwable {
         try {
-            return invokeNext(invocation);
+            return invokeInner(invocation);
         } finally {
             robotLogger.storeLogs();
         }

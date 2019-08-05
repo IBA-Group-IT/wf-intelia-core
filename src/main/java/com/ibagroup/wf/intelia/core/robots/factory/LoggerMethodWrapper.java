@@ -61,7 +61,7 @@ public class LoggerMethodWrapper extends ChainMethodWrapper {
             RunnerContext.cleanActionData();
 
             // invoke next in chain
-            Object result = invokeNext(invocation);
+            Object result = invokeInner(invocation);
 
             if (CollectionUtils.isNotEmpty(RunnerContext.getLastDescriptions())) {
                 String des1 = "";

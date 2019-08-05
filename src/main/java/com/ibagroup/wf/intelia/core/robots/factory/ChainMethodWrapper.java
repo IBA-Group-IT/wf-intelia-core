@@ -20,12 +20,12 @@ public abstract class ChainMethodWrapper implements MethodFilter {
         if (isHandled(invocation.getMethod())) {
             return wrap(invocation);
         }
-        return invokeNext(invocation);
+        return invokeInner(invocation);
     }
 
     abstract Object wrap(Invocation invocation) throws Throwable;
 
-    protected Object invokeNext(Invocation invocation) throws Throwable {
+    protected Object invokeInner(Invocation invocation) throws Throwable {
         if(getInner() == null){
             return invocation.getProceed().invoke(invocation.getSelf(), invocation.getArgs());
         }

@@ -31,7 +31,7 @@ public class SecurityMethodWrapper extends ChainMethodWrapper {
                 securityUtils = new SecurityUtils(binding);
                 securityUtils.updateUserAliasesPerApplication(secureEntryDTO.getAlias(), secureEntryDTO.getKey(), CommonConstants.ACTIVE);
             }
-            return invokeNext(invocation);
+            return invokeInner(invocation);
         
         } finally {
             if (secureEntryDTO != null) {
