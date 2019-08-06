@@ -32,4 +32,8 @@ public class Invocation {
         return proceed;
     }
 
+    @Override
+    public String toString() {
+        return "Invocation of " + method.getName() + " on " + self.getClass().getName();
+    }
 }

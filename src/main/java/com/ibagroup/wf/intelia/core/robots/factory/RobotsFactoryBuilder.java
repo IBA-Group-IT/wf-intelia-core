@@ -184,7 +184,7 @@ public class RobotsFactoryBuilder {
             chainMethodWrapper = chainMethodWrapper.setInner(new SecurityMethodWrapper(binding));
         }
 
-        return new RobotsFactory(getMapOfWiredObjects(), chainMethodWrapper != null ? chainMethodWrapper.getOuterMost() : null, doNotReThrowException);
+        return new RobotsFactory(getMapOfWiredObjects(), chainMethodWrapper != null ? chainMethodWrapper.getOuterMost() : null);
     }
 
     private Map<Class<?>, Object> getMapOfWiredObjects() {

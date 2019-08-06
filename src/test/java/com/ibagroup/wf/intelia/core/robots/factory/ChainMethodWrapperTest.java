@@ -128,6 +128,16 @@ public class ChainMethodWrapperTest {
     }
 
     @Test
+    public void testIsHandledByChain_handled_hasInner() throws Throwable {
+        wrapper.setInner(inner);
+        when(isTargetMethod.test(method)).thenReturn(true);
+        boolean result = wrapper.isHandledByChain(method);
+        verify(isTargetMethod).test(method);
+        verify(inner, never()).isHandledByChain(method);
+        assertThat(result).isTrue();
+    }
+
+    @Test
     public void testIsHandledByChain_notHandled_noInner() throws Throwable {
         when(isTargetMethod.test(method)).thenReturn(false);
         boolean result = wrapper.isHandledByChain(method);

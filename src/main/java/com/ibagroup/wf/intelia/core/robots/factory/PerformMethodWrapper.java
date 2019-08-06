@@ -48,13 +48,11 @@ public class PerformMethodWrapper extends ChainMethodWrapper {
     @Override
     Object wrap(Invocation invocation) throws Throwable {
 
-        MethodUtils.findAllMehodsHavingAnnotation(invocation.getSelf().getClass(), PrePerform.class).stream().forEach(method -> {
-            try {
-                method.invoke(invocation.getSelf());
-            } catch (Throwable e) {
-                logger.error("@PrePerform " + method.getName() + " failed", e);
-            }
-        });
+        try {
+            MethodUtils.findAndInvokeAllMethodsWithAnnotation(invocation.getSelf(), PrePerform.class);
+        } catch (Throwable e) {
+            logger.error("A @PrePerform method failed", e);
+        }
 
         try {
             // invoke next in chain
@@ -129,7 +127,7 @@ public class PerformMethodWrapper extends ChainMethodWrapper {
             if (!doNotReThrowException) {
                 throw throwable;
             }
-            return onErrorResult;
+            return onErrorResult != null ? onErrorResult : RobotsFactoryHelper.defaultReturnValue(invocation.getMethod());
         }
     }
 

@@ -1,5 +1,6 @@
 package com.ibagroup.wf.intelia.core.utils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,9 @@ public class MethodUtils {
             try {
                 method.invoke(targetObj);
             } catch (Throwable e) {
+                if (e instanceof InvocationTargetException) {
+                    e = e.getCause();
+                }
                 logger.error("@" + annotationClass.getSimpleName() + " Method " + method.getName() + " failed", e);
                 throw e;
             }

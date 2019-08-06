@@ -2,6 +2,7 @@ package com.ibagroup.wf.intelia.core.robots.factory;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.ibagroup.wf.intelia.core.annotations.AfterInit;
@@ -25,17 +26,11 @@ public class RobotsFactory {
 
     private final ChainMethodWrapper chainMethodWrapper;
 
-    private final Binding binding;
-
     private final Map<Class<?>, Object> wiringObjects;
 
-    private final boolean doNotThrowException;
-
-    public RobotsFactory(Map<Class<?>, Object> objMap, ChainMethodWrapper chainMethodWrapper, boolean doNotThrowException) {
+    public RobotsFactory(Map<Class<?>, Object> objMap, ChainMethodWrapper chainMethodWrapper) {
         this.chainMethodWrapper = chainMethodWrapper;
-        this.doNotThrowException = doNotThrowException;
         this.wiringObjects = objMap;
-        this.binding = (Binding) this.wiringObjects.get(Binding.class);
     }
 
     /**
@@ -73,24 +68,23 @@ public class RobotsFactory {
                 robot = (T) factory.create(new Class<?>[0], new Object[0], new MethodHandler() {
                     @Override
                     public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
-                        Invocation invocation = new Invocation(self, thisMethod, proceed, args);
-                        Object result = null;
                         try {
-                            result = chainMethodWrapper.verifyAndWrap(invocation);
-                        } catch (Throwable e) {
-                            if (!doNotThrowException) {
-                                throw e;
-                            }
+                            return chainMethodWrapper.verifyAndWrap(new Invocation(self, thisMethod, proceed, args));
+                        } catch (Throwable cause) {
+                            logger.error("Failed to invoke method " + thisMethod.getName() + "on" + self.getClass().getName(), cause);
+                            throw cause;
                         }
-                        return result != null ? result : RobotsFactoryHelper.defaultReturnValue(thisMethod);
                     }
                 });
             } else {
                 // no-args constructor robot instantiation
                 robot = clazz.getConstructor(new Class<?>[0]).newInstance();
             }
-            // post wire all robot fields
-            RobotsFactoryHelper.wireObject(robot, wiringObjects, binding);
+            if (MapUtils.isNotEmpty(wiringObjects)) {
+                Binding binding = (Binding) wiringObjects.get(Binding.class);
+                // post wire all robot fields
+                RobotsFactoryHelper.wireObject(robot, wiringObjects, binding);
+            }
             // invoke all @AfterInit methods
             MethodUtils.findAndInvokeAllMethodsWithAnnotation(robot, AfterInit.class);
 

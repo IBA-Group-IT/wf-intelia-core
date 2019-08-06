@@ -1,5 +1,6 @@
 package com.ibagroup.wf.intelia.core.robots.factory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import javassist.util.proxy.MethodFilter;
 
@@ -26,8 +27,12 @@ public abstract class ChainMethodWrapper implements MethodFilter {
     abstract Object wrap(Invocation invocation) throws Throwable;
 
     protected Object invokeInner(Invocation invocation) throws Throwable {
-        if(getInner() == null){
-            return invocation.getProceed().invoke(invocation.getSelf(), invocation.getArgs());
+        if (getInner() == null) {
+            try {
+                return invocation.getProceed().invoke(invocation.getSelf(), invocation.getArgs());
+            } catch (InvocationTargetException e) {
+                throw e.getCause();
+            }
         }
         return getInner().verifyAndWrap(invocation);
     }
