@@ -41,10 +41,18 @@ public class RobotsFactory {
     }
 
     /**
-     * Shortcut for {@code new RobotsFactoryBuilder(binding, throwException).defaultSetup().build()}
+     * Shortcut for
+     * {@code new RobotsFactoryBuilder(binding, throwException).defaultSetup(throwException).build()}
      */
     public static RobotsFactory defaultFactorySetup(Binding binding, boolean throwException) {
         return new RobotsFactoryBuilder(binding).defaultSetup(throwException).build();
+    }
+
+    /**
+     * Shortcut for {@code new RobotsFactoryBuilder(binding).defaultSetup(dsName).build()}
+     */
+    public static RobotsFactory defaultFactorySetup(Binding binding, String dsName) {
+        return new RobotsFactoryBuilder(binding).defaultSetup(dsName).build();
     }
 
     /**

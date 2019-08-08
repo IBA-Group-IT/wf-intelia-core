@@ -173,12 +173,25 @@ public class ChainMethodWrapperTest {
     }
 
     @Test
-    public void testVerifyAndWrap_notHandled_hasInner() throws Throwable {
+    public void testVerifyAndWrap_notHandled_hasInner_notHandled() throws Throwable {
         when(isTargetMethod.test(method)).thenReturn(false);
         wrapper.setInner(inner);
         wrapper.verifyAndWrap(invocation);
         verify(isTargetMethod).test(method);
-        verify(inner).verifyAndWrap(invocation);
+        verify(inner).isHandled(method);
+        verify(wrapBody, never()).apply(invocation);
+        verify(proceed).invoke(self, args);
+    }
+
+    @Test
+    public void testVerifyAndWrap_notHandled_hasInner_handled() throws Throwable {
+        when(isTargetMethod.test(method)).thenReturn(false);
+        when(inner.isHandled(method)).thenReturn(true);
+        wrapper.setInner(inner);
+        wrapper.verifyAndWrap(invocation);
+        verify(isTargetMethod).test(method);
+        verify(inner).isHandled(method);
+        verify(inner).wrap(invocation);
         verify(wrapBody, never()).apply(invocation);
         verify(proceed, never()).invoke(self, args);
     }
@@ -186,9 +199,10 @@ public class ChainMethodWrapperTest {
     @Test
     public void testVerifyAndWrap_notHandled_hasInner_innerThrowsThrowable() throws Throwable {
         when(isTargetMethod.test(method)).thenReturn(false);
+        when(inner.isHandled(method)).thenReturn(true);
         wrapper.setInner(inner);
         Throwable throwable = new Throwable("Inner throws Throwable");
-        doThrow(throwable).when(inner).verifyAndWrap(invocation);
+        doThrow(throwable).when(inner).wrap(invocation);
         assertThatThrownBy(() -> {
             wrapper.verifyAndWrap(invocation);
         }).isEqualTo(throwable);
