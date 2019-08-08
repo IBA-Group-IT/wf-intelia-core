@@ -1,8 +1,6 @@
 package com.ibagroup.wf.intelia.core.robots.factory;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -43,10 +41,13 @@ public class RobotsFactoryBuilder {
     private MetadataPermanentStorage metadataPermanentStorage;
     private IRobotLogger robotLogger;
 
-    private List<Class<? extends MethodWrapper>> methodWrappers = new ArrayList<>();
-
     private boolean doNotReThrowException = false;
-    private boolean doNotUsePerformAdapter = false;
+
+    // method wrappers options
+    private boolean logMethodCallStats = false;
+    private boolean logRobotDetailsAtPerform = false;
+    private boolean tweakPerform = false;
+    private boolean tweakSecurity = false;
 
     public RobotsFactoryBuilder(Binding binding) {
         // binding is mandatory for builder
@@ -63,6 +64,7 @@ public class RobotsFactoryBuilder {
      * <li>robotLogger - {@link RobotLogger}</li>
      * <li>exceptionHandler - {@link DefaultExceptionHandler}</li>
      * <li>re-throw exception - <b>false</b></li>
+     * <li>method wrappers - all included</li>
      * </ul>
      */
     public RobotsFactoryBuilder defaultSetup() {
@@ -78,6 +80,7 @@ public class RobotsFactoryBuilder {
      * <li>robotLogger - {@link RobotLogger}</li>
      * <li>exceptionHandler - {@link DefaultExceptionHandler}</li>
      * <li>re-throw exception - <b>false</b></li>
+     * <li>method wrappers - all included</li>
      * </ul>
      */
     public RobotsFactoryBuilder defaultSetup(String dsName) {
@@ -92,6 +95,7 @@ public class RobotsFactoryBuilder {
      * <li>activitiesStorage - {@link MetadataStorage}</li>
      * <li>robotLogger - {@link RobotLogger}</li>
      * <li>exceptionHandler - {@link DefaultExceptionHandler}</li>
+     * <li>method wrappers - all included</li>
      * </ul>
      */
     public RobotsFactoryBuilder defaultSetup(boolean throwException) {
@@ -101,26 +105,35 @@ public class RobotsFactoryBuilder {
     /**
      * Does following default setup
      * <ul>
-     * <li>cfgManager - {@link DataStoreConfiguration}</li>
+     * <li>cfgManager - {@link DataStoreConfiguration}, from <b>rpa_config_ds</b></li>
      * <li>activityManager - {@link MetadataListManager}</li>
      * <li>activitiesStorage - {@link MetadataStorage}</li>
      * <li>robotLogger - {@link RobotLogger}</li>
      * <li>exceptionHandler - {@link DefaultExceptionHandler}</li>
+     * <li>method wrappers - all included</li>
      * </ul>
      */
     public RobotsFactoryBuilder defaultSetup(boolean throwException, String dsName) {
-        return defaultCfg(dsName).defaultActivityMgr().defaultActivitiesStorage(configurationManager).defaultRobotLogger(configurationManager).defaultExHandler().setDoNotReThrowException(!throwException);
+        return defaultCfg(dsName).defaultActivityMgr().defaultActivitiesStorage(configurationManager).defaultRobotLogger(configurationManager).defaultExHandler()
+                .setDoNotReThrowException(!throwException).addAllMethodWrappers();
+
+    }
+
+    /**
+     * Does following default setup
+     * <ul>
+     * <li>cfgManager - {@link DataStoreConfiguration}</li>
+     * <li>activityManager - {@link MetadataListManager}</li>
+     * <li>activitiesStorage - {@link MetadataStorage}</li>
+     * <li>method wrappers - none included</li>
+     * </ul>
+     */
+    public RobotsFactoryBuilder miniSetup(boolean throwException, String dsName) {
+        return defaultCfg(dsName).defaultActivityMgr().defaultActivitiesStorage(configurationManager);
     }
 
     @SuppressWarnings("unchecked")
     public RobotsFactory build() {
-        if (!doNotUsePerformAdapter) {
-            // add default performMethodAdapter
-            addMethodWrapper(PerformMethodWrapper.class);
-            // add default LoggerMethodWrapper
-            addMethodWrapper(LoggerMethodWrapper.class);
-        }
-
         boolean debugMode = configurationManager.getConfigItem(CommonConstants.DEBUG_MODE_ON, false, Formatter.BOOLEAN);
         boolean uploadAfterEachPerform = debugMode;
         // if debugMode is ON then upload metadata to S3 in any case
@@ -144,13 +157,35 @@ public class RobotsFactoryBuilder {
             });
         }
 
-        MethodWrapperBuilder methodWrapperBuilder = new MethodWrapperBuilder(robotLogger);
-        MethodAdapterBuilder methodAdapterBuilder = new MethodAdapterBuilder(binding, uploadAfterEachPerform, uploadAfterFailure, doNotReThrowException, metadataPermanentStorage, exceptionHandler,
-                metadataManager, robotLogger, methodWrapperBuilder);
 
-        return new RobotsFactory(getMapOfWiredObjects(), methodWrappers, doNotReThrowException, methodAdapterBuilder);
+        // set MATRYOSHKA chain of method wrappers
+        // ORDER IS IMPORTANT !!!
+        // OUTERMOST starts first and ends last
+        ChainMethodWrapper chainMethodWrapper = null;
+        if (logMethodCallStats || logRobotDetailsAtPerform) {
+            // will call robotLogger.storeLogs() last at the perform processing
+            chainMethodWrapper = new StoreLogsAtExitMethodWrapper(robotLogger);
+        }
+
+        if (logRobotDetailsAtPerform) {
+            chainMethodWrapper = chainMethodWrapper.setInner(new LoggerDetailsWrapper(robotLogger));
+        }
+
+        if (logMethodCallStats) {
+            chainMethodWrapper = chainMethodWrapper.setInner(new LoggerMethodWrapper(robotLogger));
+        }
+
+        if (tweakPerform) {
+            chainMethodWrapper = chainMethodWrapper.setInner(
+                    new PerformMethodWrapper(uploadAfterEachPerform, uploadAfterFailure, doNotReThrowException, metadataPermanentStorage, exceptionHandler, metadataManager));
+        }
+
+        if (tweakSecurity) {
+            chainMethodWrapper = chainMethodWrapper.setInner(new SecurityMethodWrapper(binding));
+        }
+
+        return new RobotsFactory(getMapOfWiredObjects(), chainMethodWrapper != null ? chainMethodWrapper.getOuterMost() : null);
     }
-
 
     private Map<Class<?>, Object> getMapOfWiredObjects() {
         return Arrays.asList(exceptionHandler, configurationManager, metadataManager, robotLogger, binding, flowContext).stream().filter(item -> item != null).filter(item -> null != item)
@@ -169,11 +204,6 @@ public class RobotsFactoryBuilder {
 
     public RobotsFactoryBuilder doNotReThrowException() {
         return setDoNotReThrowException(true);
-    }
-
-    public RobotsFactoryBuilder doNotUsePerformAdapter() {
-        this.doNotUsePerformAdapter = true;
-        return this;
     }
 
     public RobotsFactoryBuilder setExHandler(ExceptionHandler exHandler) {
@@ -231,16 +261,6 @@ public class RobotsFactoryBuilder {
         }));
     }
 
-    public RobotsFactoryBuilder addMethodWrapper(Class<? extends MethodWrapper> methodWrapperClass) {
-        this.methodWrappers.add(methodWrapperClass);
-        return this;
-    }
-
-    public RobotsFactoryBuilder addMethodWrappers(List<Class<? extends MethodWrapper>> methodWrapperClasses) {
-        this.methodWrappers.addAll(methodWrapperClasses);
-        return this;
-    }
-
     public RobotsFactoryBuilder setRobotLogger(IRobotLogger robotLogger) {
         this.robotLogger = robotLogger;
         return this;
@@ -248,6 +268,42 @@ public class RobotsFactoryBuilder {
     
     public RobotsFactoryBuilder defaultRobotLogger(ConfigurationManager cfg) {
        return setRobotLogger(new RobotLogger(binding, cfg.getConfigItem("bp_actions"), cfg.getConfigItem("bp_details")));
+    }
+
+    public RobotsFactoryBuilder logMethodCallStats() {
+        logMethodCallStats = true;
+        return this;
+    }
+
+    public RobotsFactoryBuilder logRobotDetailsAtPerform() {
+        logRobotDetailsAtPerform = true;
+        return this;
+    }
+
+    public RobotsFactoryBuilder tweakPerform() {
+        tweakPerform = true;
+        return this;
+    }
+
+    public RobotsFactoryBuilder tweakSecurity() {
+        tweakSecurity = true;
+        return this;
+    }
+
+    public RobotsFactoryBuilder addAllMethodWrappers() {
+        return logMethodCallStats().logRobotDetailsAtPerform().tweakPerform().tweakSecurity();
+    }
+
+    public RobotsFactoryBuilder addOnlyMethodAndDetailsLogging() {
+        return logMethodCallStats().logRobotDetailsAtPerform();
+    }
+
+    public RobotsFactoryBuilder onlyTweakPerform() {
+        return tweakPerform();
+    }
+
+    public RobotsFactoryBuilder onlyTweakPerformAndSecurity() {
+        return tweakPerform().tweakSecurity();
     }
 
 }

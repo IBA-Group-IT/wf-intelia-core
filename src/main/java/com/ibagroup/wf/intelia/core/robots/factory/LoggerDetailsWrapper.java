@@ -1,14 +1,13 @@
 package com.ibagroup.wf.intelia.core.robots.factory;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Objects;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.ibagroup.wf.intelia.core.CommonConstants;
 import com.ibagroup.wf.intelia.core.mis.IRobotLogger;
 import com.ibagroup.wf.intelia.core.mis.LoggableDetail;
 import com.ibagroup.wf.intelia.core.mis.LoggableField;
@@ -16,7 +15,7 @@ import com.ibagroup.wf.intelia.core.mis.LoggingPhase;
 import com.ibagroup.wf.intelia.core.mis.TaskDetail;
 import com.ibagroup.wf.intelia.core.to.BaseTO;
 
-public class LoggerDetailsWrapper extends DetailWrapper {
+public class LoggerDetailsWrapper extends ChainMethodWrapper {
 
 	private static final Logger logger = LoggerFactory.getLogger(LoggerDetailsWrapper.class);
 
@@ -27,26 +26,33 @@ public class LoggerDetailsWrapper extends DetailWrapper {
 		this.robotLogger = robotLogger;
 	}
 
-	@Override
-	void onstart(Object robot) {
-		FieldUtils.getFieldsListWithAnnotation(robot.getClass(), LoggableField.class).stream().forEach(field -> {
-			if (field.getAnnotation(LoggableField.class).phase().equals(LoggingPhase.ONSTART)) {
-				String module = field.getAnnotation(LoggableField.class).module();
-				searchForDetails(robot, field, module, false);
-			}
-		});
+    @Override
+    public boolean isHandled(Method m) {
+        return PerformMethodWrapper.isPerformMethod.test(m);
+    }
 
-	}
+    @Override
+    Object wrap(Invocation invocation) throws Throwable {
 
-	@Override
-	void oncompletion(Object robot) {
-		FieldUtils.getFieldsListWithAnnotation(robot.getClass(), LoggableField.class).stream().forEach(field -> {
-			if (field.getAnnotation(LoggableField.class).phase().equals(LoggingPhase.ONCOMPLETION)) {
-				String module = field.getAnnotation(LoggableField.class).module();
-				searchForDetails(robot, field, module, false);
-			}
-		});
-	}
+        FieldUtils.getFieldsListWithAnnotation(invocation.getSelf().getClass(), LoggableField.class).stream().forEach(field -> {
+            if (field.getAnnotation(LoggableField.class).phase().equals(LoggingPhase.ONSTART)) {
+                String module = field.getAnnotation(LoggableField.class).module();
+                searchForDetails(invocation.getSelf(), field, module, false);
+            }
+        });
+
+        Object result = invokeInner(invocation);
+
+        FieldUtils.getFieldsListWithAnnotation(invocation.getSelf().getClass(), LoggableField.class).stream().forEach(field -> {
+            if (field.getAnnotation(LoggableField.class).phase().equals(LoggingPhase.ONCOMPLETION)) {
+                String module = field.getAnnotation(LoggableField.class).module();
+                searchForDetails(invocation.getSelf(), field, module, false);
+            }
+        });
+
+        return result;
+
+    }
 
 	private void logDetail(Object robot, Field field, String module) {
 		try {
