@@ -1,4 +1,4 @@
-package com.ibagroup.wf.intelia.core.templates.impl;
+package com.ibagroup.wf.intelia.core.templates;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
