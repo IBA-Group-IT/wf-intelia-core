@@ -1,4 +1,4 @@
-package com.ibagroup.wf.intelia.core;
+package com.ibagroup.wf.intelia.core.utils;
 
 import com.freedomoss.crowdcontrol.webharvest.HitSubmissionDataItemDto;
 import com.freedomoss.crowdcontrol.webharvest.HitSubmissionDataItemValueDto;

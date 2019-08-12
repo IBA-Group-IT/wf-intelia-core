@@ -12,7 +12,7 @@ import com.freedomoss.crowdcontrol.webharvest.WebHarvestConstants;
 import com.freedomoss.crowdcontrol.webharvest.plugin.security.provider.ISecureEntryProvider;
 import com.freedomoss.crowdcontrol.webharvest.plugin.security.provider.SecureStoreProvider;
 import com.freedomoss.crowdcontrol.webharvest.web.WebServiceConnectionProperties;
-import com.ibagroup.wf.intelia.core.BindingUtils;
+import com.ibagroup.wf.intelia.core.utils.BindingUtils;
 import com.workfusion.service.CachedWebServiceFactory;
 import com.workfusion.utils.security.Credentials;
 import groovy.lang.Binding;

@@ -11,7 +11,7 @@ import com.freedomoss.crowdcontrol.webharvest.plugin.datastore.service.DatabaseD
 import com.freedomoss.crowdcontrol.webharvest.plugin.datastore.service.IRemoteDataStoreService;
 import com.freedomoss.crowdcontrol.webharvest.plugin.datastore.service.RemoteDataStoreServiceFactory;
 import com.freedomoss.crowdcontrol.webharvest.web.WebServiceConnectionProperties;
-import com.ibagroup.wf.intelia.core.BindingUtils;
+import com.ibagroup.wf.intelia.core.utils.BindingUtils;
 import com.workfusion.utils.security.DatabaseProperties;
 import groovy.lang.Binding;
 

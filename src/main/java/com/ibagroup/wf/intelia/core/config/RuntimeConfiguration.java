@@ -1,7 +1,6 @@
 package com.ibagroup.wf.intelia.core.config;
 
-import com.ibagroup.wf.intelia.core.BindingUtils;
-
+import com.ibagroup.wf.intelia.core.utils.BindingUtils;
 import groovy.lang.Binding;
 
 public class RuntimeConfiguration implements ConfigurationManager {
