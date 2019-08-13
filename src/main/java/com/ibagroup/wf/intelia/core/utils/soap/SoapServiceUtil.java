@@ -1,4 +1,4 @@
-package com.ibagroup.wf.intelia.utils.soap;
+package com.ibagroup.wf.intelia.core.utils.soap;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

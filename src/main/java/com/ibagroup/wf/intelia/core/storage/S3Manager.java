@@ -29,7 +29,7 @@ import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.ibagroup.wf.intelia.core.adaptations.MachineVersionAdaptations;
-import com.ibagroup.wf.intelia.core.BindingUtils;
+import com.ibagroup.wf.intelia.core.utils.BindingUtils;
 import groovy.lang.Binding;
 
 public class S3Manager implements StorageManager {

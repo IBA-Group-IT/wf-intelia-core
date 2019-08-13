@@ -11,12 +11,11 @@ import org.slf4j.LoggerFactory;
 import com.freedomoss.crowdcontrol.webharvest.CampaignDto;
 import com.freedomoss.crowdcontrol.webharvest.RunDto;
 import com.freedomoss.crowdcontrol.webharvest.WebHarvestTaskItem;
-import com.ibagroup.wf.intelia.core.BindingUtils;
 import com.ibagroup.wf.intelia.core.exceptions.ExceptionHandler;
 import com.ibagroup.wf.intelia.core.metadata.MetadataManager;
 import com.ibagroup.wf.intelia.core.metadata.types.Metadata;
 import com.ibagroup.wf.intelia.core.storage.StorageManager;
-
+import com.ibagroup.wf.intelia.core.utils.BindingUtils;
 import groovy.lang.Binding;
 
 public class MetadataStorage implements MetadataPermanentStorage {

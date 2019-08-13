@@ -7,11 +7,10 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.ibagroup.wf.intelia.core.BindingUtils;
-import com.ibagroup.wf.intelia.core.CommonUtils;
 import com.ibagroup.wf.intelia.core.datastore.DataStoreQuery;
 import com.ibagroup.wf.intelia.core.datastore.DataStoreQuery.RowItem;
+import com.ibagroup.wf.intelia.core.utils.BindingUtils;
+import com.ibagroup.wf.intelia.core.utils.CommonStringUtils;
 
 public class DataStoreConfiguration implements ConfigurationManager {
 
@@ -68,7 +67,7 @@ public class DataStoreConfiguration implements ConfigurationManager {
 
     private void initConfigDs() {
         if (StringUtils.isBlank(dsName)) {
-            if (!initConfigDs(CommonUtils.getCustomAttribute(binding, RPA_CONFIG_DS))) {
+            if (!initConfigDs(CommonStringUtils.getCustomAttribute(binding, RPA_CONFIG_DS))) {
                 String dsFromInput = BindingUtils.getPropertyValue(binding, RPA_CONFIG_DS);
                 logger.info("Custom attribute 'rpa_config_ds' is not define, using value from input file: " + dsFromInput);
                 initConfigDs(dsFromInput);

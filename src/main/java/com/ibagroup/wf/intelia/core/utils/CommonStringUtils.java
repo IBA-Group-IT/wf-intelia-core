@@ -1,4 +1,4 @@
-package com.ibagroup.wf.intelia.core;
+package com.ibagroup.wf.intelia.core.utils;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -7,6 +7,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
@@ -16,10 +18,42 @@ import com.freedomoss.crowdcontrol.webharvest.WebHarvestTaskItem;
 import com.google.common.collect.Lists;
 import groovy.lang.Binding;
 
-public class CommonUtils {
-    private static final Logger logger = LoggerFactory.getLogger(CommonUtils.class);
+public class CommonStringUtils {
+    private static final Logger logger = LoggerFactory.getLogger(CommonStringUtils.class);
 
-    private CommonUtils() {}
+    private CommonStringUtils() {}
+
+
+    /**
+     * Convenience method to get some <b>not blank</b> string value out of the map based on string
+     * key.
+     * 
+     * @throws IllegalStateException if blank value found
+     */
+    public static String extractNotBlank(Map<String, String> rowMap, String key) {
+        return Optional.ofNullable(rowMap.get(key)).filter(StringUtils::isNotBlank).orElseThrow(() -> new IllegalStateException("Blank " + key + " found"));
+    }
+
+    /**
+     * Returns empty (if blank) or normalized to lower case string
+     */
+    public static String normalizeToLowerCase(String value) {
+        return StringUtils.isBlank(value) ? "" : value.toLowerCase();
+    }
+
+    /**
+     * Returns empty (if blank) or normalized to lower case + no spaces string
+     */
+    public static String normalizeToLowerCaseNoSpaces(String value) {
+        return normalizeToLowerCase(value).replaceAll(" +", "");
+    }
+
+    /**
+     * Returns empty (if blank) or normalized to lower case + no spaces + no brackets string
+     */
+    public static String normalizeToLowerCaseNoSpacesNoBrackets(String value) {
+        return normalizeToLowerCaseNoSpaces(value).replaceAll("[\\(\\)]+", "");
+    }
 
     /**
      * Normalize dates according to acceptable format in 3270 system number (21.07.2017 = JUL2017).
