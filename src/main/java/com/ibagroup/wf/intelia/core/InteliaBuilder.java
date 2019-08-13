@@ -10,6 +10,7 @@ public class InteliaBuilder {
     private Binding context;
     private Map<String, String> params = new HashMap<>();
     private List<Module> overrideModules;
+    private List<Module> additionalModules;
     private Object injectContext;
 
     public InteliaBuilder(Binding context) {
@@ -18,6 +19,11 @@ public class InteliaBuilder {
 
     public InteliaBuilder params(Map<String, String> params) {
         this.params = params;
+        return this;
+    }
+
+    public InteliaBuilder additional(Module... modules) {
+        additionalModules = Arrays.asList(modules);
         return this;
     }
 
@@ -32,8 +38,6 @@ public class InteliaBuilder {
     }
 
     public Intelia get() {
-        Module coreModule = new CoreModule(context, params);
-        List<Module> InteliaModules = Arrays.asList(coreModule);
-        return new Intelia(context, params, InteliaModules, overrideModules, injectContext);
+        return new Intelia(context, params, additionalModules, overrideModules, injectContext);
     }
 }

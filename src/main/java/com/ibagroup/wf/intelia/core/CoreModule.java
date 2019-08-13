@@ -21,7 +21,12 @@ import com.ibagroup.wf.intelia.core.metadata.storage.MetadataPermanentStorage;
 import com.ibagroup.wf.intelia.core.metadata.storage.MetadataStorage;
 import com.ibagroup.wf.intelia.core.mis.IRobotLogger;
 import com.ibagroup.wf.intelia.core.mis.RobotLogger;
-import com.ibagroup.wf.intelia.core.security.SecurityUtils;
+import com.ibagroup.wf.intelia.core.robots.factory.ChainMethodWrapper;
+import com.ibagroup.wf.intelia.core.robots.factory.LoggerDetailsWrapper;
+import com.ibagroup.wf.intelia.core.robots.factory.LoggerMethodWrapper;
+import com.ibagroup.wf.intelia.core.robots.factory.PerformMethodWrapper;
+import com.ibagroup.wf.intelia.core.robots.factory.SecurityMethodWrapper;
+import com.ibagroup.wf.intelia.core.robots.factory.StoreLogsAtExitMethodWrapper;
 import com.ibagroup.wf.intelia.core.storage.S3Manager;
 import com.ibagroup.wf.intelia.core.storage.StorageManager;
 import groovy.lang.Binding;
@@ -74,7 +79,7 @@ public class CoreModule implements Module {
 
     @Provides
     @Named(RPA_CONFIG_DS)
-    String configDSName() {
+    public String configDSName() {
         return params.get(RPA_CONFIG_DS);
     }
 
@@ -111,13 +116,13 @@ public class CoreModule implements Module {
 
     @Provides
     @Named(BP_ACTIONS_DS_NAME_PARAM_NAME)
-    String bpActionsDSName(ConfigurationManager cfg) {
+    public String bpActionsDSName(ConfigurationManager cfg) {
         return params.containsKey(BP_ACTIONS_DS_NAME_PARAM_NAME) ? params.get(BP_ACTIONS_DS_NAME_PARAM_NAME) : cfg.getConfigItem(BP_ACTIONS_DS_NAME_PARAM_NAME);
     }
 
     @Provides
     @Named(BP_DETAILS_DS_NAME_PARAM_NAME)
-    String bpDetailsDSName(ConfigurationManager cfg) {
+    public String bpDetailsDSName(ConfigurationManager cfg) {
         return params.containsKey(BP_DETAILS_DS_NAME_PARAM_NAME) ? params.get(BP_DETAILS_DS_NAME_PARAM_NAME) : cfg.getConfigItem(BP_DETAILS_DS_NAME_PARAM_NAME);
     }
 
@@ -133,9 +138,18 @@ public class CoreModule implements Module {
         return defaultExceptionHandler;
     }
 
+
     @Provides
     @Singleton
-    public SecurityUtils securityUtils(SecurityUtils securityUtils) {
-        return securityUtils;
+    public ChainMethodWrapper chainMethodWrapper(IRobotLogger robotLogger, MetadataManager metadataManager, ExceptionHandler exceptionHandler,
+            MetadataPermanentStorage metadataPermanentStorage, @Named("uploadAfterEachPerform") boolean uploadAfterEachPerform,
+            @Named("uploadAfterFailure") boolean uploadAfterFailure, @Named("doNotReThrowException") boolean doNotReThrowException) {
+        // set MATRYOSHKA chain of method wrappers
+        // ORDER IS IMPORTANT !!!
+        // OUTERMOST starts first and ends last
+        return new StoreLogsAtExitMethodWrapper(robotLogger).setInner(new LoggerDetailsWrapper(robotLogger)).setInner(new LoggerMethodWrapper(robotLogger))
+                .setInner(new PerformMethodWrapper(uploadAfterEachPerform, uploadAfterFailure, doNotReThrowException, metadataPermanentStorage, exceptionHandler, metadataManager))
+                .setInner(new SecurityMethodWrapper(context)).getOuterMost();
+
     }
 }

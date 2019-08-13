@@ -1,9 +1,10 @@
 package com.ibagroup.wf.intelia.core.config;
 
-import groovy.lang.Binding;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,10 +12,11 @@ import com.ibagroup.wf.intelia.core.datastore.DataStoreQuery;
 import com.ibagroup.wf.intelia.core.datastore.DataStoreQuery.RowItem;
 import com.ibagroup.wf.intelia.core.utils.BindingUtils;
 import com.ibagroup.wf.intelia.core.utils.CommonStringUtils;
+import groovy.lang.Binding;
 
 public class DataStoreConfiguration implements ConfigurationManager {
 
-    private static final String RPA_CONFIG_DS = "rpa_config_ds";
+    public static final String RPA_CONFIG_DS = "rpa_config_ds";
 
     private static final Logger logger = LoggerFactory.getLogger(DataStoreConfiguration.class);
 
@@ -22,12 +24,13 @@ public class DataStoreConfiguration implements ConfigurationManager {
     private List<ConfigPair> configDs = null;
     private String dsName = null;
 
-    public DataStoreConfiguration(Binding binding) {
-        this.binding = binding;
-    }
+    // public DataStoreConfiguration(Binding binding) {
+    // this.binding = binding;
+    // }
 
-    public DataStoreConfiguration(Binding binding, String dsName) {
-        this(binding);
+    @Inject
+    public DataStoreConfiguration(Binding binding, @Named(RPA_CONFIG_DS) String dsName) {
+        this.binding = binding;
         this.dsName = dsName;
     }
 

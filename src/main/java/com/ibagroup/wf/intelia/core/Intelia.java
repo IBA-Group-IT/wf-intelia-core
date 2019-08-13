@@ -7,10 +7,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.codejargon.feather.Feather;
 import groovy.lang.Binding;
 
-public class Intelia {
-    private final Feather injector;
+public class Intelia extends Injector {
     protected final Binding context;
-    private Map<String, String> params;
 
     /**
      * Initializes the Intelia Engine.
@@ -22,7 +20,6 @@ public class Intelia {
      */
     protected Intelia(Binding context, Map<String, String> params, List<Module> additionalModules, List<Module> overrideModules, Object injectContext) {
         this.context = context;
-        this.params = params;
         List<Module> modules = new ArrayList<>();
 
         if (CollectionUtils.isEmpty(overrideModules)) {
@@ -34,29 +31,14 @@ public class Intelia {
             modules.addAll(overrideModules);
         }
 
-        injector = Feather.with(modules);
+        setInjector(Feather.with(modules));
         if (injectContext != null) {
-            injector.injectFields(injectContext);
+            getInjector().injectFields(injectContext);
         }
     }
 
     public static InteliaBuilder init(Binding binding) {
         return new InteliaBuilder(binding);
-    }
-
-    /**
-     * Provides instance of requested class with all its dependencies.
-     *
-     * @param clazz object class to be provided
-     * @param <T> type of requested object
-     * @return instance with all dependencies
-     */
-    public final <T> T getInstance(Class<T> clazz) {
-        return injector.instance(clazz);
-    }
-
-    public Map<String, String> getParams() {
-        return params;
     }
 
 }
