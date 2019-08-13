@@ -15,10 +15,9 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.ibagroup.wf.intelia.core.BindingUtils;
 import com.ibagroup.wf.intelia.core.annotations.Wire;
 import com.ibagroup.wf.intelia.core.to.BaseTO;
-
+import com.ibagroup.wf.intelia.core.utils.BindingUtils;
 import groovy.lang.Binding;
 
 public class RobotsFactoryHelper {

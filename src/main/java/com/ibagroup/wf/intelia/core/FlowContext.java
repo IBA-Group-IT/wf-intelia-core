@@ -17,6 +17,7 @@ import com.freedomoss.crowdcontrol.webharvest.RunDto;
 import com.freedomoss.crowdcontrol.webharvest.WebHarvestTaskItem;
 import com.ibagroup.wf.intelia.core.to.ErrorTO;
 import com.ibagroup.wf.intelia.core.to.ErrorsTO;
+import com.ibagroup.wf.intelia.core.utils.BindingUtils;
 import groovy.lang.Binding;
 
 /**

@@ -23,7 +23,6 @@ import com.ibagroup.wf.intelia.core.FlowContext;
 import com.ibagroup.wf.intelia.core.Injector;
 import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
 import com.ibagroup.wf.intelia.core.pagefactory.PageFactory;
-import com.ibagroup.wf.intelia.systems.ConsoleScreenTimeoutException;
 import com.workfusion.rpa.driver.Driver;
 import com.workfusion.rpa.helpers.RPA;
 import com.workfusion.rpa.helpers.utils.ApiUtils;
@@ -276,7 +275,7 @@ public class RobotDriverWrapper extends Injector {
             if (!clock.isNowBefore(end)) {
                 String toAppend = " waiting for " + verificationText + " to be present";
                 String timeoutMessage = String.format("Timed out after %d seconds%s", Long.valueOf(timeout.in(TimeUnit.SECONDS)), toAppend);
-                throw new ConsoleScreenTimeoutException(timeoutMessage, RPA.selectAllTextAndCopy());
+                throw new TimeoutException(timeoutMessage);
             }
 
             try {

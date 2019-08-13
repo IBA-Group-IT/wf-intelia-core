@@ -1,22 +1,20 @@
 package com.ibagroup.wf.intelia.core.config;
 
+import groovy.lang.Binding;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
-import javax.inject.Named;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.ibagroup.wf.intelia.core.BindingUtils;
-import com.ibagroup.wf.intelia.core.CommonUtils;
 import com.ibagroup.wf.intelia.core.datastore.DataStoreQuery;
 import com.ibagroup.wf.intelia.core.datastore.DataStoreQuery.RowItem;
-import groovy.lang.Binding;
+import com.ibagroup.wf.intelia.core.utils.BindingUtils;
+import com.ibagroup.wf.intelia.core.utils.CommonStringUtils;
 
 public class DataStoreConfiguration implements ConfigurationManager {
 
-    public static final String RPA_CONFIG_DS = "rpa_config_ds";
+    private static final String RPA_CONFIG_DS = "rpa_config_ds";
 
     private static final Logger logger = LoggerFactory.getLogger(DataStoreConfiguration.class);
 
@@ -28,8 +26,7 @@ public class DataStoreConfiguration implements ConfigurationManager {
         this.binding = binding;
     }
 
-    @Inject
-    public DataStoreConfiguration(Binding binding, @Named(RPA_CONFIG_DS) String dsName) {
+    public DataStoreConfiguration(Binding binding, String dsName) {
         this(binding);
         this.dsName = dsName;
     }
@@ -70,7 +67,7 @@ public class DataStoreConfiguration implements ConfigurationManager {
 
     private void initConfigDs() {
         if (StringUtils.isBlank(dsName)) {
-            if (!initConfigDs(CommonUtils.getCustomAttribute(binding, RPA_CONFIG_DS))) {
+            if (!initConfigDs(CommonStringUtils.getCustomAttribute(binding, RPA_CONFIG_DS))) {
                 String dsFromInput = BindingUtils.getPropertyValue(binding, RPA_CONFIG_DS);
                 logger.info("Custom attribute 'rpa_config_ds' is not define, using value from input file: " + dsFromInput);
                 initConfigDs(dsFromInput);
