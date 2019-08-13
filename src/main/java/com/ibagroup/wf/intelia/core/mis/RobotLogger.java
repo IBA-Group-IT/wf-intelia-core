@@ -6,12 +6,12 @@ package com.ibagroup.wf.intelia.core.mis;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.ibagroup.wf.intelia.core.datastore.DataStoreInsert;
 import com.ibagroup.wf.intelia.core.robots.factory.RunnerContext;
-
 import groovy.lang.Binding;
 
 /**
@@ -19,6 +19,8 @@ import groovy.lang.Binding;
  *
  */
 public class RobotLogger implements IRobotLogger {
+    public static final String BP_ACTIONS_DS_NAME_PARAM_NAME = "bp_actions";
+    public static final String BP_DETAILS_DS_NAME_PARAM_NAME = "bp_details";
 
 	static final Logger logger = LoggerFactory.getLogger(RobotLogger.class);
 	public final String campaignUuid; 
@@ -30,7 +32,8 @@ public class RobotLogger implements IRobotLogger {
 	List<TaskDetail> taskDetails = new ArrayList<>();
 	List<TaskAction> taskActions = new ArrayList<>();
 
-	public RobotLogger(Binding binding, String actionsDSname, String detailsDSname) {
+    @Inject
+    public RobotLogger(Binding binding, @Named(BP_ACTIONS_DS_NAME_PARAM_NAME) String actionsDSname, @Named(BP_DETAILS_DS_NAME_PARAM_NAME) String detailsDSname) {
 		this.binding = binding;
 		this.campaignUuid = RunnerContext.getCampaignUuid();
 		this.actionsDSname = actionsDSname;
