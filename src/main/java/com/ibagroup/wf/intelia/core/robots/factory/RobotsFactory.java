@@ -98,7 +98,7 @@ public class RobotsFactory {
 
             return robot;
         } catch (Throwable cause) {
-            logger.error("Failed to crate new robot instance " + clazz.getName(), cause);
+            logger.error("Failed to create new robot instance " + clazz.getName(), cause);
             throw cause;
         }
     }

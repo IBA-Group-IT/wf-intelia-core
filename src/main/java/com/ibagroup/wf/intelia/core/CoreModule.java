@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.webharvest.utils.SystemUtilities;
 import com.freedomoss.crowdcontrol.webharvest.WebHarvestConstants;
 import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
+import com.ibagroup.wf.intelia.core.config.ConfigurationManager.Formatter;
 import com.ibagroup.wf.intelia.core.config.DataStoreConfiguration;
 import com.ibagroup.wf.intelia.core.exceptions.DefaultExceptionHandler;
 import com.ibagroup.wf.intelia.core.exceptions.ExceptionHandler;
@@ -32,9 +33,25 @@ import com.ibagroup.wf.intelia.core.storage.S3Manager;
 import com.ibagroup.wf.intelia.core.storage.StorageManager;
 import groovy.lang.Binding;
 
+/**
+ * Feather Injectable Context Initialization Module. Adds default set of Core beans into context:
+ * <ul>
+ * <li>cfgManager - {@link DataStoreConfiguration}, from <b>rpa_config_ds</b> param</li>
+ * <li>metadataManager - {@link MetadataListManager}</li>
+ * <li>metadataStorage - S3 {@link MetadataStorage}</li>
+ * <li>robotLogger - {@link RobotLogger}</li>
+ * <li>exceptionHandler - {@link DefaultExceptionHandler}</li>
+ * <li>re-throw exception - from <b>doNotReThrowException</b> param</li>
+ * <li>method wrappers - all included</li>
+ * </ul>
+ * 
+ * @author dmitriev
+ *
+ */
 public class CoreModule implements Module {
     public final static String BOT_CONFIG_PARAMS_PARAM_NAME = "botConfigParams";
-    
+    public final static String DO_NOT_RETHROW_EXCEPTION_PARAM_NAME = "doNotReThrowException";
+
     private final Binding context;
     private Map<String, String> params;
     private Provider<Injector> injectorProvider;
@@ -141,18 +158,45 @@ public class CoreModule implements Module {
         return defaultExceptionHandler;
     }
 
+    /**
+     * !Provides Injector to anyone interested!
+     */
     @Provides
     @Singleton
     public Injector injector() {
         return injectorProvider.get();
     }
 
+    @Provides
+    @Named("uploadAfterEachPerform")
+    public boolean uploadAfterEachPerform(ConfigurationManager cfg) {
+        boolean debugMode = cfg.getConfigItem(CommonConstants.DEBUG_MODE_ON, false, Formatter.BOOLEAN);
+        return debugMode;
+    }
+
+    @Provides
+    @Named("uploadAfterFailure")
+    public boolean uploadAfterFailure(ConfigurationManager cfg) {
+        boolean debugMode = cfg.getConfigItem(CommonConstants.DEBUG_MODE_ON, false, Formatter.BOOLEAN);
+        // if debugMode is ON then upload metadata to S3 in any case
+        boolean uploadAfterFailure = true;
+        if (!debugMode) {
+            uploadAfterFailure = cfg.getConfigItem(CommonConstants.UPLOAD_AFTER_FAILURE, true, Formatter.BOOLEAN);
+        }
+        return uploadAfterFailure;
+    }
+
+    @Provides
+    @Named(DO_NOT_RETHROW_EXCEPTION_PARAM_NAME)
+    public boolean doNotReThrowException(ConfigurationManager cfg) {
+        return params.containsKey(DO_NOT_RETHROW_EXCEPTION_PARAM_NAME) ? Boolean.parseBoolean(params.get(DO_NOT_RETHROW_EXCEPTION_PARAM_NAME)) : false;
+    }
 
     @Provides
     @Singleton
     public ChainMethodWrapper chainMethodWrapper(IRobotLogger robotLogger, MetadataManager metadataManager, ExceptionHandler exceptionHandler,
             MetadataPermanentStorage metadataPermanentStorage, @Named("uploadAfterEachPerform") boolean uploadAfterEachPerform,
-            @Named("uploadAfterFailure") boolean uploadAfterFailure, @Named("doNotReThrowException") boolean doNotReThrowException) {
+            @Named("uploadAfterFailure") boolean uploadAfterFailure, @Named(DO_NOT_RETHROW_EXCEPTION_PARAM_NAME) boolean doNotReThrowException) {
         // set MATRYOSHKA chain of method wrappers
         // ORDER IS IMPORTANT !!!
         // OUTERMOST starts first and ends last
