@@ -15,7 +15,7 @@ import com.ibagroup.wf.intelia.core.mis.TaskAction.Result;
 import com.ibagroup.wf.intelia.core.robots.factory.RunnerContext;
 import groovy.lang.Binding;
 
-public abstract class RobotCapabilities extends Injector implements RobotProtocol {
+public abstract class RobotCapabilities implements RobotProtocol {
 
     @Inject
 	@Wire
@@ -40,6 +40,9 @@ public abstract class RobotCapabilities extends Injector implements RobotProtoco
     @Inject
 	@Wire
 	private IRobotLogger robotLogger;
+
+    @Inject
+    private Injector injector;
 
 	@Override
 	public void storeCurrentActionResult(Result result, String... description) {
@@ -81,4 +84,7 @@ public abstract class RobotCapabilities extends Injector implements RobotProtoco
 		return true;
 	}
 
+    public Injector getInjector() {
+        return injector;
+    }
 }

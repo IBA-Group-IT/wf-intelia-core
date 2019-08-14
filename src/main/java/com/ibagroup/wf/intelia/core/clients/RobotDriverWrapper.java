@@ -27,7 +27,7 @@ import com.workfusion.rpa.driver.Driver;
 import com.workfusion.rpa.helpers.RPA;
 import com.workfusion.rpa.helpers.utils.ApiUtils;
 
-public class RobotDriverWrapper extends Injector {
+public class RobotDriverWrapper {
 
     @Inject
     private FlowContext flowContext;
@@ -37,6 +37,9 @@ public class RobotDriverWrapper extends Injector {
 
     @Inject
     private Logger logger = null;
+
+    @Inject
+    private Injector injector;
 
     private Driver driver = null;
 
@@ -65,6 +68,10 @@ public class RobotDriverWrapper extends Injector {
 
     public Logger getLogger() {
         return logger;
+    }
+
+    public Injector getInjector() {
+        return injector;
     }
 
     public <T> T waitForElement(Function<WebDriver, T> function, int secondsToPoll) {

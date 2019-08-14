@@ -5,6 +5,7 @@ import static com.ibagroup.wf.intelia.core.mis.RobotLogger.BP_ACTIONS_DS_NAME_PA
 import static com.ibagroup.wf.intelia.core.mis.RobotLogger.BP_DETAILS_DS_NAME_PARAM_NAME;
 import java.util.Map;
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.codejargon.feather.Provides;
@@ -36,10 +37,12 @@ public class CoreModule implements Module {
     
     private final Binding context;
     private Map<String, String> params;
+    private Provider<Injector> injectorProvider;
 
-    public CoreModule(Binding context, final Map<String, String> botConfigParams) {
+    public CoreModule(Binding context, final Map<String, String> botConfigParams, Provider<Injector> injectorProvider) {
         this.context = context;
         this.params = botConfigParams;
+        this.injectorProvider = injectorProvider;
     }
 
     @Provides
@@ -136,6 +139,12 @@ public class CoreModule implements Module {
     @Singleton
     public ExceptionHandler exceptionHandler(DefaultExceptionHandler defaultExceptionHandler) {
         return defaultExceptionHandler;
+    }
+
+    @Provides
+    @Singleton
+    public Injector injector() {
+        return injectorProvider.get();
     }
 
 

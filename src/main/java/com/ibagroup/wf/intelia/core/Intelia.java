@@ -3,12 +3,14 @@ package com.ibagroup.wf.intelia.core;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Provider;
 import org.apache.commons.collections.CollectionUtils;
 import org.codejargon.feather.Feather;
 import groovy.lang.Binding;
 
-public class Intelia extends Injector {
+public class Intelia implements Injector {
     protected final Binding context;
+    private final Feather injector;
 
     /**
      * Initializes the Intelia Engine.
@@ -23,7 +25,12 @@ public class Intelia extends Injector {
         List<Module> modules = new ArrayList<>();
 
         if (CollectionUtils.isEmpty(overrideModules)) {
-            modules.add(new CoreModule(context, params));
+            modules.add(new CoreModule(context, params, new Provider<Injector>() {
+                @Override
+                public Injector get() {
+                    return Intelia.this;
+                };
+            }));
             if (CollectionUtils.isNotEmpty(additionalModules)) {
                 modules.addAll(additionalModules);
             }
@@ -31,14 +38,27 @@ public class Intelia extends Injector {
             modules.addAll(overrideModules);
         }
 
-        setInjector(Feather.with(modules));
+        injector = Feather.with(modules);
         if (injectContext != null) {
-            getInjector().injectFields(injectContext);
+            injector.injectFields(injectContext);
         }
     }
 
     public static InteliaBuilder init(Binding binding) {
         return new InteliaBuilder(binding);
+    }
+
+    /**
+     * Provides instance of requested class with all its dependencies.
+     *
+     * @param clazz object class to be provided
+     * @param <T> type of requested object
+     * @return instance with all dependencies
+     */
+    public <T> T getInstance(Class<T> clazz) {
+        T newInstance = injector.instance(clazz);
+        injector.injectFields(newInstance);
+        return newInstance;
     }
 
 }
