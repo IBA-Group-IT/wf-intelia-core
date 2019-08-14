@@ -1,5 +1,6 @@
 package com.ibagroup.wf.intelia.core.exceptions;
 
+import javax.inject.Inject;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ public class DefaultExceptionHandler implements ExceptionHandler{
     private String lastErrorMessage = "";
     private FlowContext flowContext;
     
+    @Inject
     public DefaultExceptionHandler(FlowContext flowContext) {
         this.flowContext = flowContext;
     }

@@ -1,8 +1,10 @@
 package com.ibagroup.wf.intelia.core.robots;
 
+import javax.inject.Inject;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ibagroup.wf.intelia.core.FlowContext;
+import com.ibagroup.wf.intelia.core.Injector;
 import com.ibagroup.wf.intelia.core.annotations.Wire;
 import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
 import com.ibagroup.wf.intelia.core.exceptions.ExceptionHandler;
@@ -11,23 +13,36 @@ import com.ibagroup.wf.intelia.core.metadata.types.LoggingMetadata;
 import com.ibagroup.wf.intelia.core.mis.IRobotLogger;
 import com.ibagroup.wf.intelia.core.mis.TaskAction.Result;
 import com.ibagroup.wf.intelia.core.robots.factory.RunnerContext;
-
 import groovy.lang.Binding;
 
 public abstract class RobotCapabilities implements RobotProtocol {
 
+    @Inject
 	@Wire
 	private Binding binding;
+
+    @Inject
 	@Wire
 	private FlowContext flowContext;
+
+    @Inject
 	@Wire
 	private ExceptionHandler exceptionHandler;
-	@Wire
+
+    @Inject
+    @Wire
 	private ConfigurationManager cfg;
-	@Wire
+
+    @Inject
+    @Wire
 	private MetadataManager metadataManager;
+
+    @Inject
 	@Wire
 	private IRobotLogger robotLogger;
+
+    @Inject
+    private Injector injector;
 
 	@Override
 	public void storeCurrentActionResult(Result result, String... description) {
@@ -69,4 +84,7 @@ public abstract class RobotCapabilities implements RobotProtocol {
 		return true;
 	}
 
+    public Injector getInjector() {
+        return injector;
+    }
 }

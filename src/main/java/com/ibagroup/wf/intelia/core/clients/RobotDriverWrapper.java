@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.inject.Inject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.TimeoutException;
@@ -14,11 +15,12 @@ import org.openqa.selenium.support.ui.Clock;
 import org.openqa.selenium.support.ui.Duration;
 import org.openqa.selenium.support.ui.SystemClock;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.ibagroup.wf.intelia.core.FlowContext;
+import com.ibagroup.wf.intelia.core.Injector;
 import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
 import com.ibagroup.wf.intelia.core.pagefactory.PageFactory;
 import com.workfusion.rpa.driver.Driver;
@@ -27,16 +29,29 @@ import com.workfusion.rpa.helpers.utils.ApiUtils;
 
 public class RobotDriverWrapper {
 
-    private static final Logger logger = LoggerFactory.getLogger(RobotDriverWrapper.class);
+    @Inject
+    private FlowContext flowContext;
 
-    private Driver driver = null;
+    @Inject
     private ConfigurationManager cfg = null;
 
-    public RobotDriverWrapper(ConfigurationManager cmn) {
-        this.cfg = cmn;
-        this.driver = ApiUtils.driver();
+    @Inject
+    private Logger logger = null;
 
+    @Inject
+    private Injector injector;
+
+    private Driver driver = null;
+
+    public RobotDriverWrapper() {
+        this.driver = ApiUtils.driver();
         PageFactory.initElements(getDriver(), this);
+    }
+
+    @Inject
+    public RobotDriverWrapper(ConfigurationManager cmn) {
+        this();
+        this.cfg = cmn;
     }
 
     public Driver getDriver() {
@@ -45,6 +60,18 @@ public class RobotDriverWrapper {
 
     public ConfigurationManager getCfg() {
         return cfg;
+    }
+
+    public FlowContext getFlowContext() {
+        return flowContext;
+    }
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    public Injector getInjector() {
+        return injector;
     }
 
     public <T> T waitForElement(Function<WebDriver, T> function, int secondsToPoll) {
