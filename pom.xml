@@ -20,7 +20,7 @@
 			<properties>
 				<intelia.version>91</intelia.version>
 				<intelia.adaptations.version>92.0.2</intelia.adaptations.version>
-				<workfusion.version>9.1.0.5</workfusion.version>
+				<workfusion.version>9.1.0.10</workfusion.version>
 			</properties>
 		</profile>
 
