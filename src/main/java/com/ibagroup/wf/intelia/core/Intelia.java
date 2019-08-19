@@ -1,14 +1,19 @@
 package com.ibagroup.wf.intelia.core;
 
+import static com.ibagroup.wf.intelia.core.robots.factory.RobotsFactoryHelper.getFieldValue;
+import static com.ibagroup.wf.intelia.core.robots.factory.RobotsFactoryHelper.wireField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.codejargon.feather.Feather;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.ibagroup.wf.intelia.core.annotations.Wire;
 import com.ibagroup.wf.intelia.core.robots.factory.ChainMethodWrapper;
 import com.ibagroup.wf.intelia.core.robots.factory.Invocation;
+import com.ibagroup.wf.intelia.core.utils.BindingUtils;
 import groovy.lang.Binding;
 import javassist.util.proxy.ProxyFactory;
 
@@ -88,6 +93,32 @@ public class Intelia implements Injector {
         }
         // do fields injection as the last step
         injector.injectFields(newInstance);
+        // EXPERIMANTAL - resolve @Wire against Binding
+        Binding binding = injector.instance(Binding.class);
+        if (binding != null) {
+            final T finalNewInstance = newInstance;
+            FieldUtils.getFieldsListWithAnnotation(clazz, Wire.class).stream().forEach(field -> {
+                Object fieldValue = getFieldValue(finalNewInstance, field);
+                if (null == fieldValue) {
+                    // if not set by Feather -
+                    // trying to wire from binding
+                    Wire wireanno = field.getAnnotation(Wire.class);
+                    String name = wireanno.name().trim().isEmpty() ? field.getName() : wireanno.name();
+                    Object value = BindingUtils.getTypedPropertyValue(binding, name);
+                    if (null != value) {
+                        wireField(field, name, finalNewInstance, value);
+                        return;
+                    }
+                    if (wireanno.required()) {
+                        // if no match found and required then throw unable to
+                        // wire Exception
+                        throw new IllegalArgumentException(
+                                "Can' wire [" + field.getName() + "], unable to find bean type [" + field.getType() + "] or item with name [" + wireanno.name() + "]");
+                    }
+                }
+            });
+        }
+
         return newInstance;
 
     }

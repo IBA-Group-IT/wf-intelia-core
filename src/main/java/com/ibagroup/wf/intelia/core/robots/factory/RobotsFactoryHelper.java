@@ -9,10 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.ibagroup.wf.intelia.core.annotations.Wire;
@@ -55,6 +53,18 @@ public class RobotsFactoryHelper {
 		}
 		field.setAccessible(accessible);
 	}
+
+    public static Object getFieldValue(Object where, Field field) {
+        boolean accessible = field.isAccessible();
+        field.setAccessible(true);
+        try {
+            return field.get(where);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            field.setAccessible(accessible);
+        }
+    }
 
 	public static <T> void wireObject(T robot, Map<Class<?>, Object> wiringObjects, Binding binding) {
 		FieldUtils.getFieldsListWithAnnotation(robot.getClass(), Wire.class).stream().forEach(field -> {
