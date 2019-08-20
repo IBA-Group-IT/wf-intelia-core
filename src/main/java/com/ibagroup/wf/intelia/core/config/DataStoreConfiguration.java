@@ -42,7 +42,6 @@ public class DataStoreConfiguration implements ConfigurationManager {
      */
     @Override
     public String getConfigItem(String keyParam) {
-        // SecureEntryDTO
         logger.info("Trying to get config for: " + keyParam);
         if (configDs == null) {
             initConfigDs();

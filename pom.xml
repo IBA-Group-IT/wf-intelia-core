@@ -5,12 +5,9 @@
 	<profiles>
 		<profile>
 			<id>wf90</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<properties>
 				<intelia.version>90</intelia.version>
-				<intelia.adaptations.version>90.0.2</intelia.adaptations.version>
+				<intelia.adaptations.version>90.0.4</intelia.adaptations.version>
 				<workfusion.version>9.0.0.7</workfusion.version>
 			</properties>
 		</profile>
@@ -19,16 +16,19 @@
 			<id>wf91</id>
 			<properties>
 				<intelia.version>91</intelia.version>
-				<intelia.adaptations.version>92.0.2</intelia.adaptations.version>
+				<intelia.adaptations.version>92.0.4</intelia.adaptations.version>
 				<workfusion.version>9.1.0.5</workfusion.version>
 			</properties>
 		</profile>
 
 		<profile>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 			<id>wf92</id>
 			<properties>
 				<intelia.version>92</intelia.version>
-				<intelia.adaptations.version>92.0.2</intelia.adaptations.version>
+				<intelia.adaptations.version>92.0.4</intelia.adaptations.version>
 				<workfusion.version>9.2.0.3</workfusion.version>
 			</properties>
 		</profile>
@@ -37,7 +37,7 @@
 			<id>wf93</id>
 			<properties>
 				<intelia.version>93</intelia.version>
-				<intelia.adaptations.version>92.0.2</intelia.adaptations.version>
+				<intelia.adaptations.version>92.0.4</intelia.adaptations.version>
 				<workfusion.version>9.3.0.0</workfusion.version>
 			</properties>
 		</profile>
@@ -46,7 +46,7 @@
 	<groupId>com.ibagroup.wf</groupId>
 	<artifactId>intelia-core</artifactId>
 	<packaging>jar</packaging>
-	<version>${intelia.version}.0.14</version>
+	<version>${intelia.version}.0.15</version>
 
 	<name>Intelia Core Project</name>
 

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.ibagroup.wf.intelia.core.mis;
 
 import java.util.ArrayList;

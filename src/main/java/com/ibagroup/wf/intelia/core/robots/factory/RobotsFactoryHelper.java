@@ -116,7 +116,8 @@ public class RobotsFactoryHelper {
 				} else {
 				    value = gson.fromJson(strValue, List.class);
 				}
-			} else if (BaseTO.class.isAssignableFrom(field.getType())) {
+            } else {
+                // try create field class object from Json string
 			    Class clazz = (Class) (field.getType());
 				value = (Object)gson.fromJson(strValue, clazz);
 			}

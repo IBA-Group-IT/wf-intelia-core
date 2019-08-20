@@ -93,7 +93,7 @@ public class Intelia implements Injector {
         }
         // do fields injection as the last step
         injector.injectFields(newInstance);
-        // EXPERIMANTAL - resolve @Wire against Binding
+        // EXPERIMENTAL - resolve @Wire against Binding
         Binding binding = injector.instance(Binding.class);
         if (binding != null) {
             final T finalNewInstance = newInstance;

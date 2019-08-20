@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.ibagroup.wf.intelia.core.adaptations.MachineVersionAdaptations;
 
 public class MethodUtils {
     private static final Logger logger = LoggerFactory.getLogger(MethodUtils.class);
 
     public static List<Method> findAllMehodsHavingAnnotation(Class examineClass, Class annotationClass) {
-        // TODO extract to MachineAdaptations
-        return org.apache.commons.lang3.reflect.MethodUtils.getMethodsListWithAnnotation(examineClass, annotationClass);
+        return MachineVersionAdaptations.getMethodsListWithAnnotation(examineClass, annotationClass);
     }
 
     public static Optional<Method> findAnyMehodHavingAnnotation(Class examineClass, Class annotationClass) {

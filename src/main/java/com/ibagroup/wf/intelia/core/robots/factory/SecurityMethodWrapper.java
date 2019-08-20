@@ -1,15 +1,13 @@
 package com.ibagroup.wf.intelia.core.robots.factory;
 
 import java.lang.reflect.Method;
-import java.util.function.Predicate;
-import com.freedomoss.crowdcontrol.webharvest.web.dto.SecureEntryDTO;
 import com.ibagroup.wf.intelia.core.CommonConstants;
+import com.ibagroup.wf.intelia.core.adaptations.MachineVersionAdaptations;
+import com.ibagroup.wf.intelia.core.security.SecureEntryDtoWrapper;
 import com.ibagroup.wf.intelia.core.security.SecurityUtils;
 import groovy.lang.Binding;
 
 public class SecurityMethodWrapper extends ChainMethodWrapper {
-
-    public final static Predicate<Method> isPerformMethod = m -> "perform".equalsIgnoreCase(m.getName());
 
     private final Binding binding;
 
@@ -18,13 +16,12 @@ public class SecurityMethodWrapper extends ChainMethodWrapper {
     }
 
     public boolean isHandled(Method m) {
-        return isPerformMethod.test(m);
+        return PerformMethodWrapper.isPerformMethod.test(m);
     }
 
     @Override
     Object wrap(Invocation invocation) throws Throwable {
-        // TODO verify and refactor old webharvest SecureEntryDTO ref
-        SecureEntryDTO secureEntryDTO = extractSecureEntry(invocation.getArgs());
+        SecureEntryDtoWrapper secureEntryDTO = extractSecureEntry(invocation.getArgs());
         SecurityUtils securityUtils = null;
         try {
             if (secureEntryDTO != null) {
@@ -32,7 +29,7 @@ public class SecurityMethodWrapper extends ChainMethodWrapper {
                 securityUtils.updateUserAliasesPerApplication(secureEntryDTO.getAlias(), secureEntryDTO.getKey(), CommonConstants.ACTIVE);
             }
             return invokeInner(invocation);
-        
+
         } finally {
             if (secureEntryDTO != null) {
                 securityUtils.updateUserAliasesPerApplication(secureEntryDTO.getAlias(), secureEntryDTO.getKey(), CommonConstants.INACTIVE);
@@ -41,15 +38,15 @@ public class SecurityMethodWrapper extends ChainMethodWrapper {
     }
 
 
-    protected SecureEntryDTO extractSecureEntry(Object[] args) {
+    protected SecureEntryDtoWrapper extractSecureEntry(Object[] args) {
         if (null != args) {
             for (int i = 0; i < args.length; i++) {
-                if (null != args[i] && SecureEntryDTO.class.isAssignableFrom(args[i].getClass())) {
-                    return (SecureEntryDTO) args[i];
-                    }
+                if (null != args[i] && "SecureEntryDTO".equals(args[i].getClass().getSimpleName())) {
+                    return MachineVersionAdaptations.wrap(args[i], SecureEntryDtoWrapper.WRAPPER);
                 }
             }
+        }
 
         return null;
-        }
+    }
 }

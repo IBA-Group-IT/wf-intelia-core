@@ -3,6 +3,7 @@ package com.ibagroup.wf.intelia.core.robots.factory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -168,7 +169,7 @@ public class RobotsFactoryTest {
         Object theResult = new Object();
         when(performBody.get()).thenReturn(theResult);
         // for the test wrapper applies to all robot methods
-        when(shouldWrapMethod.test(any())).thenReturn(true);
+        when(shouldWrapMethod.test(argThat(m -> "perform".equals(m.getName())))).thenReturn(true);
         TestRobot robotInstance = new RobotsFactory(null, wrapper).newRobotInstance(TestRobot.class);
         assertThat(robotInstance).isNotNull();
         // wrapper's isHandled called for each robot method (9 times actually)
@@ -180,7 +181,6 @@ public class RobotsFactoryTest {
         });
         // run perform
         Object result = robotInstance.perform();
-        // since wrapper does not apply - wrapper should not be called
         verify(wrapBody).apply(any());
         verify(performBody).get();
         assertThat(result).isEqualTo(theResult);
@@ -191,7 +191,7 @@ public class RobotsFactoryTest {
         RuntimeException runtime = new RuntimeException("Perform failed");
         doThrow(runtime).when(performBody).get();
         // for the test wrapper applies to all robot methods
-        when(shouldWrapMethod.test(any())).thenReturn(true);
+        when(shouldWrapMethod.test(argThat(m -> "perform".equals(m.getName())))).thenReturn(true);
         TestRobot robotInstance = new RobotsFactory(null, wrapper).newRobotInstance(TestRobot.class);
         assertThat(robotInstance).isNotNull();
 
