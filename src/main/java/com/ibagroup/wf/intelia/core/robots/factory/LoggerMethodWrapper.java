@@ -43,7 +43,7 @@ public class LoggerMethodWrapper extends ChainMethodWrapper {
     }
 
     @Override
-    Object wrap(Invocation invocation) throws Throwable {
+    public Object wrap(Invocation invocation) throws Throwable {
         Long startTime = new Date().getTime();
         String module = null;
         String operation = null;

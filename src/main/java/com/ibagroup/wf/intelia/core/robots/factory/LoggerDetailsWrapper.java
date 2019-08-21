@@ -32,7 +32,7 @@ public class LoggerDetailsWrapper extends ChainMethodWrapper {
     }
 
     @Override
-    Object wrap(Invocation invocation) throws Throwable {
+    public Object wrap(Invocation invocation) throws Throwable {
 
         FieldUtils.getFieldsListWithAnnotation(invocation.getSelf().getClass(), LoggableField.class).stream().forEach(field -> {
             if (field.getAnnotation(LoggableField.class).phase().equals(LoggingPhase.ONSTART)) {

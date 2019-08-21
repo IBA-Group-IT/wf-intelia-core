@@ -84,7 +84,7 @@ public class Intelia implements Injector {
                 });
             }
         } catch (Throwable e) {
-            logger.error("Failed to proxy new instance " + clazz.getName(), e);
+            logger.warn("Failed to proxy new instance " + clazz.getName(), e);
         }
         if (newInstance == null) {
             // If proxy failed (e.g. no wrappers chain or no-args constructor missing)

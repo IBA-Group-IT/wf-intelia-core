@@ -24,7 +24,7 @@ public class StoreLogsAtExitMethodWrapper extends ChainMethodWrapper {
     }
 
     @Override
-    Object wrap(Invocation invocation) throws Throwable {
+    public Object wrap(Invocation invocation) throws Throwable {
         try {
             return invokeInner(invocation);
         } finally {

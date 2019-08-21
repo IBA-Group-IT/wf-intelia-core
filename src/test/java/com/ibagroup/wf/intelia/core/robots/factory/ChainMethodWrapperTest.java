@@ -33,7 +33,7 @@ public class ChainMethodWrapperTest {
         }
 
         @Override
-        Object wrap(Invocation invocation) throws Throwable {
+        public Object wrap(Invocation invocation) throws Throwable {
             return wrapBody.apply(invocation);
         }
 

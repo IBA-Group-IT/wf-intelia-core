@@ -20,7 +20,7 @@ public class SecurityMethodWrapper extends ChainMethodWrapper {
     }
 
     @Override
-    Object wrap(Invocation invocation) throws Throwable {
+    public Object wrap(Invocation invocation) throws Throwable {
         SecureEntryDtoWrapper secureEntryDTO = extractSecureEntry(invocation.getArgs());
         SecurityUtils securityUtils = null;
         try {

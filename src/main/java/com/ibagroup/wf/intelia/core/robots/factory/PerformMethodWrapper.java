@@ -46,7 +46,7 @@ public class PerformMethodWrapper extends ChainMethodWrapper {
     }
 
     @Override
-    Object wrap(Invocation invocation) throws Throwable {
+    public Object wrap(Invocation invocation) throws Throwable {
 
         try {
             MethodUtils.findAndInvokeAllMethodsWithAnnotation(invocation.getSelf(), PrePerform.class);

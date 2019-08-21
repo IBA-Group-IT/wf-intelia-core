@@ -38,7 +38,7 @@ public abstract class ChainMethodWrapper implements MethodFilter {
      * @return
      * @throws Throwable
      */
-    abstract Object wrap(Invocation invocation) throws Throwable;
+    public abstract Object wrap(Invocation invocation) throws Throwable;
 
     /**
      * Passes control to inner wrapper or finally to the proxied object
