@@ -1,8 +1,13 @@
 package com.ibagroup.wf.intelia.core.system;
 
+import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
+
+import groovy.lang.Binding;
+
 public class DesktopPageObject extends PageObject {
 
-	public boolean titleContains(String valueToCheck) {
-		return getDriver().getTitle().trim().contains(valueToCheck);
+	public DesktopPageObject(Binding binding, ConfigurationManager cmn) {
+		super(binding, cmn);
 	}
+
 }

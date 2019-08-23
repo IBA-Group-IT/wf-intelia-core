@@ -16,11 +16,18 @@ import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
 import com.workfusion.rpa.helpers.RPA;
+
+import groovy.lang.Binding;
 
 public class WebPageObject extends PageObject {
 
 	private static final Logger logger = LoggerFactory.getLogger(WebPageObject.class);
+
+	public WebPageObject(Binding binding, ConfigurationManager cmn) {
+		super(binding, cmn);
+	}
 
 	public boolean isElementDisplayed(By elementLocator) {
 		return isElementDisplayed(elementLocator, null);
