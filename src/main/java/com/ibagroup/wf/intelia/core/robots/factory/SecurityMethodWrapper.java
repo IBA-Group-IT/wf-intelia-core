@@ -5,14 +5,13 @@ import com.ibagroup.wf.intelia.core.CommonConstants;
 import com.ibagroup.wf.intelia.core.adaptations.MachineVersionAdaptations;
 import com.ibagroup.wf.intelia.core.security.SecureEntryDtoWrapper;
 import com.ibagroup.wf.intelia.core.security.SecurityUtils;
-import groovy.lang.Binding;
 
 public class SecurityMethodWrapper extends ChainMethodWrapper {
 
-    private final Binding binding;
+    private final SecurityUtils securityUtils;
 
-    public SecurityMethodWrapper(Binding binding) {
-        this.binding = binding;
+    public SecurityMethodWrapper(SecurityUtils securityUtils) {
+        this.securityUtils = securityUtils;
     }
 
     public boolean isHandled(Method m) {
@@ -22,10 +21,8 @@ public class SecurityMethodWrapper extends ChainMethodWrapper {
     @Override
     public Object wrap(Invocation invocation) throws Throwable {
         SecureEntryDtoWrapper secureEntryDTO = extractSecureEntry(invocation.getArgs());
-        SecurityUtils securityUtils = null;
         try {
             if (secureEntryDTO != null) {
-                securityUtils = new SecurityUtils(binding);
                 securityUtils.updateUserAliasesPerApplication(secureEntryDTO.getAlias(), secureEntryDTO.getKey(), CommonConstants.ACTIVE);
             }
             return invokeInner(invocation);

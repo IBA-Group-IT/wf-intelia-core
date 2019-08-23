@@ -3,6 +3,7 @@ package com.ibagroup.wf.intelia.core;
 import static com.ibagroup.wf.intelia.core.robots.factory.RobotsFactoryHelper.getFieldValue;
 import static com.ibagroup.wf.intelia.core.robots.factory.RobotsFactoryHelper.wireField;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
@@ -17,6 +18,22 @@ import com.ibagroup.wf.intelia.core.utils.BindingUtils;
 import groovy.lang.Binding;
 import javassist.util.proxy.ProxyFactory;
 
+/**
+ * Possible ways of creating a robot with the factory:
+ * 
+ * <pre>
+ *  #1 Robot robot = <Intelia.>init(binding).defaultSetup().get().getInstance(Robot.class);
+ *  #2 Robot robot = <Intelia.>defaultFactorySetup(binding).getInstance(Robot.class);
+ * </pre>
+ * 
+ * @see Intelia#init(Binding)
+ * @see Intelia#defaultInteliaSetup(Binding)
+ * @see Intelia#defaultInteliaSetup(Binding, boolean)
+ * @see Intelia#defaultInteliaSetup(Binding, String)
+ * @see Intelia#miniInteliaSetup(Binding)
+ * @see Intelia#microInteliaSetup(Binding)
+ * @see Intelia#nanoInteliaSetup(Binding)
+ */
 public class Intelia implements Injector {
     private static final Logger logger = LoggerFactory.getLogger(Intelia.class);
     protected final Binding context;
@@ -30,7 +47,7 @@ public class Intelia implements Injector {
      * @param overrideModules modules which override default Intelia Module and additional modules.
      * @param injectContext Object in which all dependency are injected. Mostly is used for testing.
      */
-    protected Intelia(Binding context, Map<String, String> params, List<Module> additionalModules, List<Module> overrideModules, Object injectContext) {
+    protected Intelia(Binding context, Map<String, String> params, Collection<Module> additionalModules, Collection<Module> overrideModules, Object injectContext) {
         this.context = context;
         List<Module> modules = new ArrayList<>();
 
@@ -53,6 +70,63 @@ public class Intelia implements Injector {
 
     public static InteliaBuilder init(Binding binding) {
         return new InteliaBuilder(binding);
+    }
+
+    /**
+     * Shortcut for {@code Intelia.init(binding).defaultSetup().get()}
+     * 
+     * @see InteliaBuilder#defaultSetup()
+     */
+    public static Intelia defaultInteliaSetup(Binding binding) {
+        return init(binding).defaultSetup().get();
+    }
+
+    /**
+     * Shortcut for
+     * {@code Intelia.init(binding).defaultSetup().configFromDatastore(configDsName).get()}
+     * 
+     * @see InteliaBuilder#defaultSetup()
+     * @see InteliaBuilder#configFromDatastore(String)
+     */
+    public static Intelia defaultInteliaSetup(Binding binding, String configDsName) {
+        return init(binding).defaultSetup().configFromDatastore(configDsName).get();
+    }
+
+    /**
+     * Shortcut for
+     * {@code Intelia.init(binding).defaultSetup().doNotRethrowException(doNotRethrowException).get()}
+     * 
+     * @see InteliaBuilder#defaultSetup()
+     */
+    public static Intelia defaultInteliaSetup(Binding binding, boolean doNotRethrowException) {
+        return init(binding).defaultSetup().doNotRethrowException(doNotRethrowException).get();
+    }
+
+    /**
+     * Shortcut for {@code Intelia.init(binding).nanoSetup().get()}
+     * 
+     * @see InteliaBuilder#nanoSetup()
+     */
+    public static Intelia nanoInteliaSetup(Binding binding) {
+        return init(binding).nanoSetup().get();
+    }
+
+    /**
+     * Shortcut for {@code Intelia.init(binding).microSetup().get()}
+     * 
+     * @see InteliaBuilder#microSetup()
+     */
+    public static Intelia microInteliaSetup(Binding binding) {
+        return init(binding).microSetup().get();
+    }
+
+    /**
+     * Shortcut for {@code Intelia.init(binding).miniSetup().get()}
+     * 
+     * @see InteliaBuilder#miniSetup()
+     */
+    public static Intelia miniInteliaSetup(Binding binding) {
+        return init(binding).miniSetup().get();
     }
 
     /**
@@ -120,7 +194,6 @@ public class Intelia implements Injector {
         }
 
         return newInstance;
-
     }
 
 }

@@ -1,12 +1,17 @@
 package com.ibagroup.wf.intelia.core.config;
 
+import static com.ibagroup.wf.intelia.core.CoreModule.BOT_CONFIG_PARAMS_PARAM_NAME;
 import java.util.Map;
+import javax.inject.Inject;
+import javax.inject.Named;
+
 
 public class MapConfiguration implements ConfigurationManager {
 
     private final Map<String, String> props;
 
-    public MapConfiguration(Map<String, String> props) {
+    @Inject
+    public MapConfiguration(@Named(BOT_CONFIG_PARAMS_PARAM_NAME) Map<String, String> props) {
         super();
         this.props = props;
     }

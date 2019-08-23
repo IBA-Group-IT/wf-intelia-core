@@ -17,6 +17,7 @@ import com.ibagroup.wf.intelia.core.metadata.storage.MetadataPermanentStorage;
 import com.ibagroup.wf.intelia.core.metadata.storage.MetadataStorage;
 import com.ibagroup.wf.intelia.core.mis.IRobotLogger;
 import com.ibagroup.wf.intelia.core.mis.RobotLogger;
+import com.ibagroup.wf.intelia.core.security.SecurityUtils;
 import com.ibagroup.wf.intelia.core.storage.S3Manager;
 import com.ibagroup.wf.intelia.core.storage.StorageManager;
 import groovy.lang.Binding;
@@ -40,6 +41,7 @@ public class RobotsFactoryBuilder {
     private MetadataManager metadataManager;
     private MetadataPermanentStorage metadataPermanentStorage;
     private IRobotLogger robotLogger;
+    private SecurityUtils securityUtils;
 
     private boolean doNotReThrowException = false;
 
@@ -53,6 +55,7 @@ public class RobotsFactoryBuilder {
         // binding is mandatory for builder
         this.binding = binding;
         this.flowContext = new FlowContext(binding);
+        this.securityUtils = new SecurityUtils(binding);
     }
 
     /**
@@ -168,27 +171,36 @@ public class RobotsFactoryBuilder {
         }
 
         if (logRobotDetailsAtPerform) {
-            chainMethodWrapper = chainMethodWrapper.setInner(new LoggerDetailsWrapper(robotLogger));
+            chainMethodWrapper = setInner(chainMethodWrapper, new LoggerDetailsWrapper(robotLogger));
         }
 
         if (logMethodCallStats) {
-            chainMethodWrapper = chainMethodWrapper.setInner(new LoggerMethodWrapper(robotLogger));
+            chainMethodWrapper = setInner(chainMethodWrapper, new LoggerMethodWrapper(robotLogger));
         }
 
         if (tweakPerform) {
-            chainMethodWrapper = chainMethodWrapper.setInner(
+            chainMethodWrapper = setInner(chainMethodWrapper,
                     new PerformMethodWrapper(uploadAfterEachPerform, uploadAfterFailure, doNotReThrowException, metadataPermanentStorage, exceptionHandler, metadataManager));
         }
 
         if (tweakSecurity) {
-            chainMethodWrapper = chainMethodWrapper.setInner(new SecurityMethodWrapper(binding));
+            chainMethodWrapper = setInner(chainMethodWrapper, new SecurityMethodWrapper(securityUtils));
         }
 
         return new RobotsFactory(getMapOfWiredObjects(), chainMethodWrapper != null ? chainMethodWrapper.getOuterMost() : null);
     }
 
+    private ChainMethodWrapper setInner(ChainMethodWrapper chainMethodWrapper, ChainMethodWrapper inner) {
+        if (chainMethodWrapper == null) {
+            return inner;
+        } else {
+            return chainMethodWrapper.setInner(inner);
+        }
+    }
+
     private Map<Class<?>, Object> getMapOfWiredObjects() {
-        return Arrays.asList(exceptionHandler, configurationManager, metadataManager, robotLogger, binding, flowContext).stream().filter(item -> item != null).filter(item -> null != item)
+        return Arrays.asList(exceptionHandler, configurationManager, metadataManager, robotLogger, binding, flowContext, securityUtils).stream().filter(item -> item != null)
+                .filter(item -> null != item)
                 .collect(Collectors.toMap(value -> value.getClass(), value -> value, (value1, value2) -> value1));
     }
 

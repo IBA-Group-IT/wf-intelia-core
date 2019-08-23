@@ -7,12 +7,11 @@ import com.ibagroup.wf.intelia.core.FlowContext;
 import com.ibagroup.wf.intelia.core.Injector;
 import com.ibagroup.wf.intelia.core.annotations.Wire;
 import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
-import com.ibagroup.wf.intelia.core.exceptions.ExceptionHandler;
 import com.ibagroup.wf.intelia.core.metadata.MetadataManager;
 import com.ibagroup.wf.intelia.core.metadata.types.LoggingMetadata;
-import com.ibagroup.wf.intelia.core.mis.IRobotLogger;
 import com.ibagroup.wf.intelia.core.mis.TaskAction.Result;
 import com.ibagroup.wf.intelia.core.robots.factory.RunnerContext;
+import com.ibagroup.wf.intelia.core.security.SecurityUtils;
 import groovy.lang.Binding;
 
 public abstract class RobotCapabilities implements RobotProtocol {
@@ -26,10 +25,6 @@ public abstract class RobotCapabilities implements RobotProtocol {
 	private FlowContext flowContext;
 
     @Inject
-	@Wire
-	private ExceptionHandler exceptionHandler;
-
-    @Inject
     @Wire
 	private ConfigurationManager cfg;
 
@@ -38,8 +33,8 @@ public abstract class RobotCapabilities implements RobotProtocol {
 	private MetadataManager metadataManager;
 
     @Inject
-	@Wire
-	private IRobotLogger robotLogger;
+    @Wire
+    private SecurityUtils securityUtils;
 
     @Inject
     private Injector injector;
@@ -64,14 +59,6 @@ public abstract class RobotCapabilities implements RobotProtocol {
 	public ConfigurationManager getCfg() {
 		return cfg;
 	}
-
-	public ExceptionHandler getExceptionHandler() {
-		return exceptionHandler;
-	}
-
-	public IRobotLogger getRobotLogger() {
-		return robotLogger;
-	}
 	
 	public FlowContext getFlowContext(){
 	    return flowContext;
@@ -86,5 +73,9 @@ public abstract class RobotCapabilities implements RobotProtocol {
 
     public Injector getInjector() {
         return injector;
+    }
+
+    public SecurityUtils getSecurityUtils() {
+        return securityUtils;
     }
 }

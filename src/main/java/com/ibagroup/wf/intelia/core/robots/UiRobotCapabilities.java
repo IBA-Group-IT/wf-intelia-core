@@ -5,7 +5,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openqa.selenium.OutputType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.ibagroup.wf.intelia.core.metadata.types.LoggingMetadata;
 import com.ibagroup.wf.intelia.core.metadata.types.ScreenshotMetadata;
 import com.workfusion.rpa.driver.Driver;
@@ -15,7 +14,6 @@ public abstract class UiRobotCapabilities extends RobotCapabilities implements R
 
     private static final Logger logger = LoggerFactory.getLogger(UiRobotCapabilities.class);
 
-//    private RemoteDriverWrapper drvWrapper = null;
     private Driver driver = null;
 
     @Override
@@ -70,10 +68,4 @@ public abstract class UiRobotCapabilities extends RobotCapabilities implements R
         return driver;
     }
 
-//    public RemoteDriverWrapper getDrvWrapper() {
-//        if (null == drvWrapper) {
-//            drvWrapper = ApiUtils.driverWrapper();
-//        }
-//        return drvWrapper;
-//    }
 }

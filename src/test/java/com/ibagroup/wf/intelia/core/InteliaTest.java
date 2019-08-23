@@ -113,13 +113,13 @@ public class InteliaTest {
 
     @Test(expected = RuntimeException.class)
     public void testGetInstance_injectConstructorAndField_failed() throws Throwable {
-        Intelia intelia = new Intelia(null, null, null, Collections.singletonList(new TestModule_injectParam()), null);
+        Intelia intelia = new Intelia(null, null, null, Collections.singleton(new TestModule_injectParam()), null);
         intelia.getInstance(TestRobot_inject.class);
     }
 
     @Test
     public void testGetInstance_injectConstructorAndField() throws Throwable {
-        Intelia intelia = new Intelia(null, null, null, Collections.singletonList(new TestModule_injectAll()), null);
+        Intelia intelia = new Intelia(null, null, null, Collections.singleton(new TestModule_injectAll()), null);
         TestRobot_inject robot = intelia.getInstance(TestRobot_inject.class);
         assertThat(robot).isNotNull();
         assertThat(robot.metadataManager).isNotNull();
@@ -130,7 +130,7 @@ public class InteliaTest {
 
     @Test
     public void testGetInstance_wire() throws Throwable {
-        Intelia intelia = new Intelia(null, null, null, Collections.singletonList(new TestModule_wire()), null);
+        Intelia intelia = new Intelia(null, null, null, Collections.singleton(new TestModule_wire()), null);
         when(binding.hasVariable("testParam")).thenReturn(true);
         when(binding.getVariable("testParam")).thenReturn("testParamValue");
         TestRobot_wire robot = intelia.getInstance(TestRobot_wire.class);
@@ -142,7 +142,7 @@ public class InteliaTest {
 
     @Test
     public void testGetInstance_proxy_failed() throws Throwable {
-        Intelia intelia = new Intelia(null, null, null, Collections.singletonList(new TestModule_proxy()), null);
+        Intelia intelia = new Intelia(null, null, null, Collections.singleton(new TestModule_proxy()), null);
         TestRobot_inject robot = intelia.getInstance(TestRobot_inject.class);
         assertThat(robot).isNotNull();
         assertThat(robot.metadataManager).isNotNull();
@@ -152,7 +152,7 @@ public class InteliaTest {
 
     @Test
     public void testGetInstance_proxy() throws Throwable {
-        Intelia intelia = new Intelia(null, null, null, Collections.singletonList(new TestModule_proxy()), null);
+        Intelia intelia = new Intelia(null, null, null, Collections.singleton(new TestModule_proxy()), null);
         when(isTargetMethod.test(argThat(m -> "perform".equals(m.getName())))).thenReturn(true);
         TestRobot_perform robot = intelia.getInstance(TestRobot_perform.class);
         assertThat(robot).isNotNull();
@@ -163,7 +163,7 @@ public class InteliaTest {
 
     @Test
     public void testGetInstance_proxy_performFailed() throws Throwable {
-        Intelia intelia = new Intelia(null, null, null, Collections.singletonList(new TestModule_proxy()), null);
+        Intelia intelia = new Intelia(null, null, null, Collections.singleton(new TestModule_proxy()), null);
         RuntimeException runtime = new RuntimeException("Perform failed");
         doThrow(runtime).when(performBody).get();
         TestRobot_perform robot = intelia.getInstance(TestRobot_perform.class);

@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +60,6 @@ public class SecurityUtils {
     }
 
     private List<SecureEntryDtoWrapper> secDs = new ArrayList<>();
-    private List<AliasDs> aliasDs = null;
 
     private DataStoreQuery dataStoreAccess;
 
@@ -74,17 +74,25 @@ public class SecurityUtils {
     public SecurityUtils(Binding binding) {
         this.binding = binding;
         dataStoreAccess = new DataStoreQuery(binding);
-        try {
-            secDs = dataStoreAccess.executeQuery("SecureDataStore", "select * from @this;").getSelectResultAsListRows().get().stream().map(row -> {
-                return parseSec(row);
-            }).collect(Collectors.toList());
+    }
 
-        } catch (Exception exp) {
-            logger.info("SecureDataStore data store exists only localy");
+    public List<SecureEntryDtoWrapper> getAllSecureEntries() {
+        if (CollectionUtils.isEmpty(secDs)) {
+            try {
+                secDs = dataStoreAccess.executeQuery("SecureDataStore", "select * from @this;").getSelectResultAsListRows().get().stream().map(row -> {
+                    return parseSec(row);
+                }).collect(Collectors.toList());
+
+            } catch (Exception exp) {
+                logger.info("SecureDataStore data store exists only localy");
+            }
         }
+        return secDs;
+    }
 
-        this.aliasDs = dataStoreAccess.executeQuery("UserAliasesPerApplication", "select * from @this where status = '" + CommonConstants.INACTIVE + "';")
-                .getSelectResultAsListRows().get().stream().map(row -> {
+    public List<AliasDs> getAllInactiveAppAliases() {
+        return dataStoreAccess.executeQuery("UserAliasesPerApplication", "select * from @this where status = '" + CommonConstants.INACTIVE + "';").getSelectResultAsListRows().get()
+                .stream().map(row -> {
                     AliasDs aDs = new AliasDs();
                     for (Iterator<RowItem> iterator = row.iterator(); iterator.hasNext();) {
                         RowItem item = iterator.next();
@@ -114,7 +122,7 @@ public class SecurityUtils {
             throw new IllegalArgumentException("Application alias name can't be empty");
         }
 
-        List<SecureEntryDtoWrapper> result = aliasDs.stream().filter((AliasDs aDs) -> appName.equalsIgnoreCase(aDs.getAppName()) ? true : false)
+        List<SecureEntryDtoWrapper> result = getAllInactiveAppAliases().stream().filter((AliasDs aDs) -> appName.equalsIgnoreCase(aDs.getAppName()) ? true : false)
                 .map((AliasDs aDs) -> getSecureEntry(aDs.getAliasName())).collect(Collectors.toList());
         logger.info("Users list: " + result.toString());
         return result;
@@ -135,7 +143,7 @@ public class SecurityUtils {
     public SecureEntryDtoWrapper getSecureEntry(String aliasString) {
         logger.info("Trying to get securityDTO for: " + aliasString);
 
-        return secDs.stream().filter((sec) -> sec.getAlias().equalsIgnoreCase(aliasString)).findAny().orElseGet(() -> {
+        return getAllSecureEntries().stream().filter((sec) -> sec.getAlias().equalsIgnoreCase(aliasString)).findAny().orElseGet(() -> {
             return getWfSecurityBridge().getUserSecureEntry(null, aliasString);
         });
 
