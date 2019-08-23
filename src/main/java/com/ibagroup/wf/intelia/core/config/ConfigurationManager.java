@@ -1,8 +1,18 @@
 package com.ibagroup.wf.intelia.core.config;
 
+import com.ibagroup.wf.intelia.core.exceptions.MissingConfigItemException;
+
 public interface ConfigurationManager {
 
     String getConfigItem(String keyParam);
+    
+    default String getRequiredConfigItem(String keyParam) {
+        String result = getConfigItem(keyParam);
+        if(result == null) {
+        	throw new MissingConfigItemException(keyParam);
+        }
+        return result;
+    }
 
     default <T> T getConfigItem(String keyParam, T defValue, Formatter<T> formatter) {
         String result = getConfigItem(keyParam);
