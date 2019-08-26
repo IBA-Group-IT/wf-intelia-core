@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Named;
 import org.apache.commons.io.IOUtils;
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
@@ -14,9 +16,15 @@ import jcifs.smb.SmbFileOutputStream;
  */
 public class SharedFolderManager implements StorageManager {
 
+    public final static String SHARED_FOLDER_DOMAIN_PARAM_NAME = "sf_domain";
+    public final static String SHARED_FOLDER_USER_PARAM_NAME = "sf_user";
+    public final static String SHARED_FOLDER_PASSWORD_PARAM_NAME = "sf_password";
+
     private NtlmPasswordAuthentication auth;
 
-    public SharedFolderManager(String domain, String user, String password) {
+    @Inject
+    public SharedFolderManager(@Named(SHARED_FOLDER_DOMAIN_PARAM_NAME) String domain, @Named(SHARED_FOLDER_USER_PARAM_NAME) String user,
+            @Named(SHARED_FOLDER_PASSWORD_PARAM_NAME) String password) {
         this.auth = new NtlmPasswordAuthentication(domain, user, password);
     }
 

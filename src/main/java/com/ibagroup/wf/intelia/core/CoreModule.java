@@ -15,6 +15,7 @@ import com.ibagroup.wf.intelia.core.metadata.MetadataManager;
 import com.ibagroup.wf.intelia.core.metadata.storage.MetadataStorage;
 import com.ibagroup.wf.intelia.core.mis.RobotLogger;
 import com.ibagroup.wf.intelia.core.security.SecurityUtils;
+import com.workfusion.intake.core.Module;
 import groovy.lang.Binding;
 
 /**

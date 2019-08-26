@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Named;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -34,6 +36,9 @@ import groovy.lang.Binding;
 
 public class S3Manager implements StorageManager {
 
+    public final static String S3_BUCKET_PARAM_NAME = "s3_bucket";
+    public final static String S3_FOLDER_PARAM_NAME = "s3_folder";
+
     private final String initFldr;
     private final String bucket;
     private final CannedAccessControlList acl;
@@ -42,7 +47,8 @@ public class S3Manager implements StorageManager {
     private final String s3EndpointUrl;
     private static final Logger logger = LoggerFactory.getLogger(S3Manager.class);
 
-    public S3Manager(Binding binding, String bucket, String folder) {
+    @Inject
+    public S3Manager(Binding binding, @Named(S3_BUCKET_PARAM_NAME) String bucket, @Named(S3_FOLDER_PARAM_NAME) String folder) {
         this(binding, bucket, folder, CannedAccessControlList.PublicRead);
     }
 

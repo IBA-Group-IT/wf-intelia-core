@@ -8,6 +8,7 @@ import javax.inject.Singleton;
 import org.codejargon.feather.Provides;
 import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
 import com.ibagroup.wf.intelia.core.config.DataStoreConfiguration;
+import com.workfusion.intake.core.Module;
 
 public class DataStoreConfigurationManagerModule implements Module {
     @Provides

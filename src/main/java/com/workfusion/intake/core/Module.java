@@ -1,4 +1,4 @@
-package com.ibagroup.wf.intelia.core;
+package com.workfusion.intake.core;
 
 /**
  * Marker interface for Intake Modules.

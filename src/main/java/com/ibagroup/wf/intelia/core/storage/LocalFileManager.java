@@ -7,6 +7,8 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Named;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -16,11 +18,12 @@ import org.apache.commons.lang3.StringUtils;
 
 public class LocalFileManager implements StorageManager {
 
+    public final static String LOCAL_FOLDER_BASE_PATH_PARAM_NAME = "lf_basepath";
+
     private String basePath;
 
-    public LocalFileManager() {}
-
-    public LocalFileManager(String basePath) {
+    @Inject
+    public LocalFileManager(@Named(LOCAL_FOLDER_BASE_PATH_PARAM_NAME) String basePath) {
         super();
         this.basePath = basePath;
     }

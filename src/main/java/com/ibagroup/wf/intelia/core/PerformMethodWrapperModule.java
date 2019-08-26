@@ -19,6 +19,7 @@ import com.ibagroup.wf.intelia.core.robots.factory.PerformMethodWrapper;
 import com.ibagroup.wf.intelia.core.robots.factory.SecurityMethodWrapper;
 import com.ibagroup.wf.intelia.core.robots.factory.StoreLogsAtExitMethodWrapper;
 import com.ibagroup.wf.intelia.core.security.SecurityUtils;
+import com.workfusion.intake.core.Module;
 
 public class PerformMethodWrapperModule implements Module {
     public final static String DO_NOT_RETHROW_EXCEPTION_PARAM_NAME = "doNotReThrowException";
