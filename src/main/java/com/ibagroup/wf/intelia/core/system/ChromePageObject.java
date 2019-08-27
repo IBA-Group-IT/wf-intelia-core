@@ -3,17 +3,10 @@ package com.ibagroup.wf.intelia.core.system;
 import org.apache.commons.io.FilenameUtils;
 import org.openqa.selenium.WebElement;
 
-import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
 import com.workfusion.rpa.helpers.Script;
 import com.workfusion.rpa.helpers.utils.ApiUtils;
 
-import groovy.lang.Binding;
-
 public class ChromePageObject extends WebPageObject {
-
-	public ChromePageObject(Binding binding, ConfigurationManager cmn) {
-		super(binding, cmn);
-	}
 
 	public String clickAndDownload(WebElement downloadLink) {
 		String lastDownloadedFile = getLastDownloadedFileOnAgent();

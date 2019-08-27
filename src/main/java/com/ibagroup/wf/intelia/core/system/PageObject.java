@@ -18,11 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ibagroup.wf.intelia.core.clients.RobotDriverWrapper;
-import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
 import com.ibagroup.wf.intelia.core.pagefactory.Wait;
 import com.workfusion.rpa.helpers.RPA;
-
-import groovy.lang.Binding;
 
 public abstract class PageObject extends RobotDriverWrapper {
 
@@ -51,17 +48,10 @@ public abstract class PageObject extends RobotDriverWrapper {
 	@FindBy(css = "[CLASS:Button;INSTANCE:1]")
 	private WebElement openBtn;
 
-	private Binding binding;
-
-	public PageObject(Binding binding, ConfigurationManager cmn) {
-		super(cmn);
-		this.binding = binding;
+	public PageObject() {
+		super();
 		wait = new WebDriverWait(getDriver(), DEFAULT_WAIT_TIMEOUT_SECONDS);
 		waitLoading = new WebDriverWait(getDriver(), DEFAULT_WAIT_LOADING_TIMEOUT_SECONDS);
-	}
-
-	public Binding getBinding() {
-		return binding;
 	}
 
 	public void chooseFile(String filePath) {

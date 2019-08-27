@@ -2,6 +2,8 @@ package com.ibagroup.wf.intelia.core.datastore;
 
 import java.util.List;
 import java.util.Map;
+
+import com.google.inject.Inject;
 import com.ibagroup.wf.intelia.core.FlowContext;
 
 /**
@@ -21,10 +23,17 @@ import com.ibagroup.wf.intelia.core.FlowContext;
  */
 public class BaseDS {
 
-    private DataStoreAccessor dsAccessor;
+    @Inject
     protected FlowContext flowContext;
+    
     private List<Map<String, String>> all;
+    
     private String dataStoreName;
+    
+    private DataStoreAccessor dsAccessor;
+    
+    public BaseDS() {
+    }
 
     public BaseDS(FlowContext flowContext) {
         this.flowContext = flowContext;
