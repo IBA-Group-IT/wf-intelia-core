@@ -15,8 +15,30 @@ import com.ibagroup.wf.intelia.core.exceptions.DefaultExceptionHandler;
 import com.ibagroup.wf.intelia.core.metadata.storage.MetadataStorage;
 import com.ibagroup.wf.intelia.core.mis.RobotLogger;
 import com.ibagroup.wf.intelia.core.robots.factory.PerformMethodWrapper;
+import com.workfusion.intake.core.Module;
 import groovy.lang.Binding;
 
+/**
+ * Intelia APP builder.
+ * <p>
+ * Default use:
+ * 
+ * <pre>
+ * Intelia intelia = new InteliaBuilder(binding).defaultSetup().get();
+ * </pre>
+ * </p>
+ * 
+ * @see Intelia#init(Binding)
+ * @see Intelia#defaultInteliaSetup(Binding)
+ * @see Intelia#defaultInteliaSetup(Binding, boolean)
+ * @see Intelia#defaultInteliaSetup(Binding, String)
+ * @see Intelia#miniInteliaSetup(Binding)
+ * @see Intelia#microInteliaSetup(Binding)
+ * @see Intelia#nanoInteliaSetup(Binding)
+ * 
+ * @author dmitriev
+ *
+ */
 public class InteliaBuilder {
     private Binding context;
     private Map<String, String> params = new HashMap<>();
@@ -33,11 +55,20 @@ public class InteliaBuilder {
         return this;
     }
 
+    /**
+     * Adds additional module(s) instances to the injection context
+     */
     public InteliaBuilder additional(Module... modules) {
         additionalModules.addAll(Arrays.asList(modules));
         return this;
     }
 
+    /**
+     * Adds additional module(s) classes to the injection context.
+     * <p>
+     * <b>Module class must have no-args constructor for auto-instantiation</b>
+     * </p>
+     */
     public InteliaBuilder additional(Class<? extends Module>... modules) {
         additionalModules.addAll(Arrays.stream(modules).map(c -> {
             try {
@@ -49,6 +80,9 @@ public class InteliaBuilder {
         return this;
     }
 
+    /**
+     * Adds override module(s) instances to the injection context
+     */
     public InteliaBuilder override(Module... modules) {
         overrideModules.addAll(Arrays.asList(modules));
         return this;

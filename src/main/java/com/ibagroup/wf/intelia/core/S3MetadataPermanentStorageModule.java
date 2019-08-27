@@ -11,9 +11,11 @@ import com.ibagroup.wf.intelia.core.metadata.storage.MetadataPermanentStorage;
 import com.ibagroup.wf.intelia.core.metadata.storage.MetadataStorage;
 import com.ibagroup.wf.intelia.core.storage.S3Manager;
 import com.ibagroup.wf.intelia.core.storage.StorageManager;
+import com.workfusion.intake.core.Module;
 import groovy.lang.Binding;
 
 public class S3MetadataPermanentStorageModule implements Module {
+
     @Provides
     @Singleton
     public MetadataPermanentStorage metadataPermanentStorage(MetadataManager metadataManager, ConfigurationManager cfg, FlowContext flowContext, Binding context) {

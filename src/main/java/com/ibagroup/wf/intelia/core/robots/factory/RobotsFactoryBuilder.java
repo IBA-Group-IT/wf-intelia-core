@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import com.ibagroup.wf.intelia.core.CommonConstants;
 import com.ibagroup.wf.intelia.core.FlowContext;
+import com.ibagroup.wf.intelia.core.InteliaBuilder;
 import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
 import com.ibagroup.wf.intelia.core.config.ConfigurationManager.Formatter;
 import com.ibagroup.wf.intelia.core.config.DataStoreConfiguration;
@@ -29,7 +30,9 @@ import groovy.lang.Binding;
  * RobotsFactory robotsFactory = new RobotsFactoryBuilder(binding).defaultSetup().build();
  * </pre>
  * 
+ * @deprecated {@link InteliaBuilder} instead.
  */
+@Deprecated
 public class RobotsFactoryBuilder {
 
     private boolean handlersInsideBinding = false;

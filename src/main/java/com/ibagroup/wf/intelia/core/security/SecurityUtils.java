@@ -79,10 +79,8 @@ public class SecurityUtils {
     public List<SecureEntryDtoWrapper> getAllSecureEntries() {
         if (CollectionUtils.isEmpty(secDs)) {
             try {
-                secDs = dataStoreAccess.executeQuery("SecureDataStore", "select * from @this;").getSelectResultAsListRows().get().stream().map(row -> {
-                    return parseSec(row);
-                }).collect(Collectors.toList());
-
+                secDs = dataStoreAccess.executeQuery("SecureDataStore", "select * from @this;").getSelectResultAsListRows().get().stream().map(this::parseSec)
+                        .collect(Collectors.toList());
             } catch (Exception exp) {
                 logger.info("SecureDataStore data store exists only localy");
             }

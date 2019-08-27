@@ -1,9 +1,10 @@
 package com.ibagroup.wf.intelia.core.robots.factory;
 
+import com.ibagroup.wf.intelia.core.InteliaBuilder;
 import groovy.lang.Binding;
 
 /**
- * @deprecated {@link RobotsFactoryBuilder#defaultSetup()} instead.
+ * @deprecated {@link InteliaBuilder#defaultSetup()} instead.
  *
  */
 @Deprecated

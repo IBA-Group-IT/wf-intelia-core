@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.ibagroup.wf.intelia.core.Intelia;
 import com.ibagroup.wf.intelia.core.annotations.AfterInit;
 import com.ibagroup.wf.intelia.core.robots.RobotProtocol;
 import com.ibagroup.wf.intelia.core.utils.MethodUtils;
@@ -20,7 +21,9 @@ import javassist.util.proxy.ProxyFactory;
  *  #2 Robot robot = <RobotsFactory.>defaultFactorySetup(binding).newRobotInstance(Robot.class);
  * </pre>
  * 
+ * @deprecated {@link Intelia} instead.
  */
+@Deprecated
 public class RobotsFactory {
     private static final Logger logger = LoggerFactory.getLogger(RobotsFactory.class);
 

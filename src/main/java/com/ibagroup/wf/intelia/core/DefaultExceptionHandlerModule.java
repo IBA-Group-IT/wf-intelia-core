@@ -6,6 +6,7 @@ import javax.inject.Singleton;
 import org.codejargon.feather.Provides;
 import com.ibagroup.wf.intelia.core.exceptions.DefaultExceptionHandler;
 import com.ibagroup.wf.intelia.core.exceptions.ExceptionHandler;
+import com.workfusion.intake.core.Module;
 
 public class DefaultExceptionHandlerModule implements Module {
     @Provides

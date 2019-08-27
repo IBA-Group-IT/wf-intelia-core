@@ -15,6 +15,7 @@ import com.ibagroup.wf.intelia.core.annotations.Wire;
 import com.ibagroup.wf.intelia.core.robots.factory.ChainMethodWrapper;
 import com.ibagroup.wf.intelia.core.robots.factory.Invocation;
 import com.ibagroup.wf.intelia.core.utils.BindingUtils;
+import com.workfusion.intake.core.Module;
 import groovy.lang.Binding;
 import javassist.util.proxy.ProxyFactory;
 

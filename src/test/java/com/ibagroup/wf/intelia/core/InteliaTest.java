@@ -25,6 +25,7 @@ import com.ibagroup.wf.intelia.core.metadata.MetadataListManager;
 import com.ibagroup.wf.intelia.core.metadata.MetadataManager;
 import com.ibagroup.wf.intelia.core.robots.factory.ChainMethodWrapper;
 import com.ibagroup.wf.intelia.core.robots.factory.Invocation;
+import com.workfusion.intake.core.Module;
 import groovy.lang.Binding;
 
 @RunWith(MockitoJUnitRunner.class)

@@ -11,6 +11,7 @@ import org.codejargon.feather.Provides;
 import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
 import com.ibagroup.wf.intelia.core.mis.IRobotLogger;
 import com.ibagroup.wf.intelia.core.mis.RobotLogger;
+import com.workfusion.intake.core.Module;
 
 public class RobotLoggerModule implements Module {
 
