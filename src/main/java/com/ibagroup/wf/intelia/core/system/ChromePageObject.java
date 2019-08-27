@@ -3,7 +3,7 @@ package com.ibagroup.wf.intelia.core.system;
 import org.apache.commons.io.FilenameUtils;
 import org.openqa.selenium.WebElement;
 
-import com.workfusion.rpa.helpers.Script;
+import com.ibagroup.wf.intelia.core.adaptations.MachineVersionAdaptations;
 import com.workfusion.rpa.helpers.utils.ApiUtils;
 
 public class ChromePageObject extends WebPageObject {
@@ -24,7 +24,7 @@ public class ChromePageObject extends WebPageObject {
 		script.append("def lastModifiedFile = files && files.size() > 0 ? files.sort { -it.lastModified() }.head() : null;\n");
 		script.append("return lastModifiedFile?.getAbsolutePath();");
 
-		String result = (String) Script.executeGroovyScript(script.toString());
+		String result = (String) MachineVersionAdaptations.executeGroovyScript(script.toString());
 
 		return result;
 	}
@@ -61,7 +61,7 @@ public class ChromePageObject extends WebPageObject {
 		script.append("}\n");
 		script.append("return 'not_started';\n");
 
-		String res = (String) Script.executeGroovyScript(script.toString());
+		String res = (String) MachineVersionAdaptations.executeGroovyScript(script.toString());
 
 		if (res.equals("not_started")) {
 			throw new RuntimeException("Download file error. Downloading of file hadn't started.");
