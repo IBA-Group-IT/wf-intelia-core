@@ -6,7 +6,7 @@ import org.openqa.selenium.WebElement;
 import com.ibagroup.wf.intelia.core.adaptations.MachineVersionAdaptations;
 import com.workfusion.rpa.helpers.utils.ApiUtils;
 
-public class ChromePageObject extends WebPageObject {
+public class BaseChromePage extends BaseWebPage {
 
 	public String clickAndDownload(WebElement downloadLink) {
 		String lastDownloadedFile = getLastDownloadedFileOnAgent();

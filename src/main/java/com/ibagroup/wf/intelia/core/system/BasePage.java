@@ -21,14 +21,14 @@ import com.ibagroup.wf.intelia.core.clients.RobotDriverWrapper;
 import com.ibagroup.wf.intelia.core.pagefactory.Wait;
 import com.workfusion.rpa.helpers.RPA;
 
-public abstract class PageObject extends RobotDriverWrapper {
+public abstract class BasePage extends RobotDriverWrapper {
 
 	protected static final int DEFAULT_WAIT_TIMEOUT_SECONDS = 30;
 	protected static final int DEFAULT_WAIT_LOADING_TIMEOUT_SECONDS = 30 * 60;
 	protected static final int DEFAULT_WAIT_SWITCH_WINDOW_SECONDS = 5;
 	protected static final int DEFAULT_IMPLICITLY_WAIT_TIMEOUT = 5;
 
-	private static final Logger logger = LoggerFactory.getLogger(PageObject.class);
+	private static final Logger logger = LoggerFactory.getLogger(BasePage.class);
 
 	private static final String SAVE_AS_WINDOW_CSS = "[CLASS:#32770; TITLE:Save As]";
 	private static final String OPEN_FILE_WINDOW_CSS = "[CLASS:#32770; TITLE:Open]";
@@ -48,7 +48,7 @@ public abstract class PageObject extends RobotDriverWrapper {
 	@FindBy(css = "[CLASS:Button;INSTANCE:1]")
 	private WebElement openBtn;
 
-	public PageObject() {
+	public BasePage() {
 		super();
 		wait = new WebDriverWait(getDriver(), DEFAULT_WAIT_TIMEOUT_SECONDS);
 		waitLoading = new WebDriverWait(getDriver(), DEFAULT_WAIT_LOADING_TIMEOUT_SECONDS);

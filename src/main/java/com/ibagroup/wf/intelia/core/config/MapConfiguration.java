@@ -19,6 +19,8 @@ public class MapConfiguration implements ConfigurationManager {
 
 	@Override
 	public String getConfigItem(String keyParam) {
+		//In case of defining parameters in Webharvest XML via Groovy (where not checking of types) 'props.get' can return instance of class different from String.
+		//That's why it's necessary to convert result of calling get method to String.
 		Object value = props.get(keyParam);
 		return value != null ? value.toString() : null;
 	}

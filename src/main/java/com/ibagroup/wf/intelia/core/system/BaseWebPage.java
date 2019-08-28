@@ -18,9 +18,9 @@ import org.slf4j.LoggerFactory;
 
 import com.workfusion.rpa.helpers.RPA;
 
-public class WebPageObject extends PageObject {
+public class BaseWebPage extends BasePage {
 
-	private static final Logger logger = LoggerFactory.getLogger(WebPageObject.class);
+	private static final Logger logger = LoggerFactory.getLogger(BaseWebPage.class);
 
 	public boolean isElementDisplayed(By elementLocator) {
 		return isElementDisplayed(elementLocator, null);
