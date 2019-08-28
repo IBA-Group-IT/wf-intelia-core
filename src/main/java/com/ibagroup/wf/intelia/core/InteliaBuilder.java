@@ -2,6 +2,7 @@ package com.ibagroup.wf.intelia.core;
 
 import static com.ibagroup.wf.intelia.core.PerformMethodWrapperModule.DO_NOT_RETHROW_EXCEPTION_PARAM_NAME;
 import static com.ibagroup.wf.intelia.core.config.DataStoreConfiguration.RPA_CONFIG_DS;
+import static com.ibagroup.wf.intelia.core.datastore.BaseDS.DEFAULT_DATASTORE_PARAM_NAME;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -106,6 +107,15 @@ public class InteliaBuilder {
      */
     public InteliaBuilder defaultSetup() {
         return miniSetup().additional(RobotLoggerModule.class, S3MetadataPermanentStorageModule.class, DefaultExceptionHandlerModule.class);
+    }
+
+
+
+    /**
+     * Shortcut for {@code builder.params(ImmutableMap.of(RPA_CONFIG_DS, configDsName))}
+     */
+    public InteliaBuilder defaultDatastore(String dsName) {
+        return additional(DefaultDataStoreModule.class).params(ImmutableMap.of(DEFAULT_DATASTORE_PARAM_NAME, dsName));
     }
 
 
