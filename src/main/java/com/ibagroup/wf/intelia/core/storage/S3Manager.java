@@ -135,6 +135,7 @@ public class S3Manager implements StorageManager {
 
     @Override
     public List<String> listFiles(String path, String filter) {
+        path = initFldr + path;
         ListObjectsRequest listObjectsRequest = new ListObjectsRequest();
         listObjectsRequest.withBucketName(bucket);
         listObjectsRequest.withPrefix(path);
@@ -148,6 +149,7 @@ public class S3Manager implements StorageManager {
 
     @Override
     public InputStream getFile(String path) {
+        path = initFldr + path;
         GetObjectRequest getObjectRequest = new GetObjectRequest(bucket, path);
 
         return wrapTransferInvoke((client) -> {
@@ -165,6 +167,7 @@ public class S3Manager implements StorageManager {
 
     @Override
     public boolean deleteFile(String path) {
+        path = initFldr + path;
         DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket, path);
         return wrapTransferInvoke((client) -> {
             client.deleteObject(deleteObjectRequest);
