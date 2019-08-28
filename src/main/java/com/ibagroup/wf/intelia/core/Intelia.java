@@ -12,6 +12,7 @@ import org.codejargon.feather.Feather;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.ibagroup.wf.intelia.core.annotations.Wire;
+import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
 import com.ibagroup.wf.intelia.core.robots.factory.ChainMethodWrapper;
 import com.ibagroup.wf.intelia.core.robots.factory.Invocation;
 import com.ibagroup.wf.intelia.core.utils.BindingUtils;
@@ -159,7 +160,7 @@ public class Intelia implements Injector {
                 });
             }
         } catch (Throwable e) {
-            logger.warn("Failed to proxy new instance " + clazz.getName(), e);
+            logger.warn("Failed to proxy new instance of " + clazz.getName() + " - no method wrapping will be applied");
         }
         if (newInstance == null) {
             // If proxy failed (e.g. no wrappers chain or no-args constructor missing)
@@ -168,31 +169,41 @@ public class Intelia implements Injector {
         }
         // do fields injection as the last step
         injector.injectFields(newInstance);
-        // EXPERIMENTAL - resolve @Wire against Binding
+        // EXPERIMENTAL - resolve @Wire against Binding and configuration
         Binding binding = injector.instance(Binding.class);
-        if (binding != null) {
-            final T finalNewInstance = newInstance;
-            FieldUtils.getFieldsListWithAnnotation(clazz, Wire.class).stream().forEach(field -> {
-                Object fieldValue = getFieldValue(finalNewInstance, field);
-                if (null == fieldValue) {
-                    // if not set by Feather -
-                    // trying to wire from binding
-                    Wire wireanno = field.getAnnotation(Wire.class);
-                    String name = wireanno.name().trim().isEmpty() ? field.getName() : wireanno.name();
-                    Object value = BindingUtils.getTypedPropertyValue(binding, name);
-                    if (null != value) {
-                        wireField(field, name, finalNewInstance, value);
-                        return;
-                    }
-                    if (wireanno.required()) {
-                        // if no match found and required then throw unable to
-                        // wire Exception
-                        throw new IllegalArgumentException(
-                                "Can' wire [" + field.getName() + "], unable to find bean type [" + field.getType() + "] or item with name [" + wireanno.name() + "]");
-                    }
-                }
-            });
+        ConfigurationManager cfg = null;
+        try {
+            cfg = injector.instance(ConfigurationManager.class);
+        } catch (Exception e) {
+            logger.warn("Can't resolve @Wire against ConfigurationManager for " + clazz.getName() + " - no ConfigurationManager found in dependency context");
         }
+        final T finalNewInstance = newInstance;
+        final ConfigurationManager finalCfg = cfg;
+        FieldUtils.getFieldsListWithAnnotation(clazz, Wire.class).stream().forEach(field -> {
+            Object fieldValue = getFieldValue(finalNewInstance, field);
+            if (null == fieldValue) {
+                // if not set by Feather -
+                // trying to wire from binding
+                Wire wireanno = field.getAnnotation(Wire.class);
+                String name = wireanno.name().trim().isEmpty() ? field.getName() : wireanno.name();
+                Object value = BindingUtils.getTypedPropertyValue(binding, name);
+                if (null == value && finalCfg != null) {
+                    // try resolve from cfg
+                    value = finalCfg.getConfigItem(name);
+                }
+                if (null != value) {
+                    wireField(field, name, finalNewInstance, value);
+                    return;
+                }
+                if (wireanno.required()) {
+                    // if no match found and required then throw unable to
+                    // wire Exception
+                    throw new IllegalArgumentException(
+                            "Can' wire required [" + field.getName() + "], unable to find bean type [" + field.getType() + "] or item with name [" + wireanno.name() + "]");
+                }
+            }
+        });
+
 
         return newInstance;
     }
