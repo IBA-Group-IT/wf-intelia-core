@@ -2,6 +2,8 @@ package com.ibagroup.wf.intelia.core.datastore;
 
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
+import javax.inject.Named;
 import com.ibagroup.wf.intelia.core.FlowContext;
 
 /**
@@ -14,27 +16,39 @@ import com.ibagroup.wf.intelia.core.FlowContext;
  * <li>{@link #insertRecord(Map)} inserts a record into data store</li>
  * </ul>
  * 
+ * <p>
+ * Could be used on its own provided the DEFAULT_DATASTORE_PARAM_NAME exists in the dependency
+ * context
+ * </p>
+ * 
  * @see DataStoreAccessor
  * @see TODO Samples
  * @author dmitriev
  *
  */
 public class BaseDS {
+    public final static String DEFAULT_DATASTORE_PARAM_NAME = "ds_name";
 
-    private DataStoreAccessor dsAccessor;
     protected FlowContext flowContext;
+    
     private List<Map<String, String>> all;
+    
     private String dataStoreName;
+    
+    private DataStoreAccessor dsAccessor;
 
-    public BaseDS(FlowContext flowContext) {
-        this.flowContext = flowContext;
-    }
-
-    public BaseDS(FlowContext flowContext, String dataStoreName) {
+    @Inject
+    public BaseDS(FlowContext flowContext, @Named(DEFAULT_DATASTORE_PARAM_NAME) String dataStoreName) {
         this.flowContext = flowContext;
         this.dataStoreName = dataStoreName;
     }
 
+    /**
+     * Usually used as a Junit mock entry point
+     * 
+     * @param flowContext
+     * @param dsAccessor
+     */
     public BaseDS(FlowContext flowContext, DataStoreAccessor dsAccessor) {
         this.flowContext = flowContext;
         this.dsAccessor = dsAccessor;

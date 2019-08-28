@@ -7,7 +7,7 @@
 			<id>wf90</id>
 			<properties>
 				<intelia.version>90</intelia.version>
-				<intelia.adaptations.version>90.0.4</intelia.adaptations.version>
+				<intelia.adaptations.version>90.0.5</intelia.adaptations.version>
 				<workfusion.version>9.0.0.7</workfusion.version>
 			</properties>
 		</profile>
@@ -16,7 +16,7 @@
 			<id>wf91</id>
 			<properties>
 				<intelia.version>91</intelia.version>
-				<intelia.adaptations.version>92.0.4</intelia.adaptations.version>
+				<intelia.adaptations.version>92.0.5</intelia.adaptations.version>
 				<workfusion.version>9.1.0.5</workfusion.version>
 			</properties>
 		</profile>
@@ -28,7 +28,7 @@
 			<id>wf92</id>
 			<properties>
 				<intelia.version>92</intelia.version>
-				<intelia.adaptations.version>92.0.4</intelia.adaptations.version>
+				<intelia.adaptations.version>92.0.5</intelia.adaptations.version>
 				<workfusion.version>9.2.0.3</workfusion.version>
 			</properties>
 		</profile>
@@ -37,7 +37,7 @@
 			<id>wf93</id>
 			<properties>
 				<intelia.version>93</intelia.version>
-				<intelia.adaptations.version>92.0.4</intelia.adaptations.version>
+				<intelia.adaptations.version>92.0.5</intelia.adaptations.version>
 				<workfusion.version>9.3.0.0</workfusion.version>
 			</properties>
 		</profile>
@@ -46,7 +46,7 @@
 	<groupId>com.ibagroup.wf</groupId>
 	<artifactId>intelia-core</artifactId>
 	<packaging>jar</packaging>
-	<version>${intelia.version}.0.18</version>
+	<version>${intelia.version}.0.19</version>
 
 	<name>Intelia Core Project</name>
 
@@ -292,6 +292,20 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.1.0</version>
             </plugin>
+            
+            <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

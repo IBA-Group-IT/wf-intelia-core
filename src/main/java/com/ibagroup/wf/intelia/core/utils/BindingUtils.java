@@ -1,12 +1,5 @@
 package com.ibagroup.wf.intelia.core.utils;
 
-import com.freedomoss.crowdcontrol.webharvest.HitSubmissionDataItemDto;
-import com.freedomoss.crowdcontrol.webharvest.HitSubmissionDataItemValueDto;
-import com.freedomoss.crowdcontrol.webharvest.WebHarvestTaskItem;
-import com.freedomoss.crowdcontrol.webharvest.web.WebServiceConnectionProperties;
-import com.workfusion.utils.security.Credentials;
-import com.workfusion.utils.property.PropertyUtils;
-import groovy.lang.Binding;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +12,13 @@ import org.springframework.http.HttpHeaders;
 import org.webharvest.runtime.variables.EmptyVariable;
 import org.webharvest.runtime.variables.Variable;
 import org.webharvest.utils.SystemUtilities;
+import com.freedomoss.crowdcontrol.webharvest.HitSubmissionDataItemDto;
+import com.freedomoss.crowdcontrol.webharvest.HitSubmissionDataItemValueDto;
+import com.freedomoss.crowdcontrol.webharvest.WebHarvestTaskItem;
+import com.freedomoss.crowdcontrol.webharvest.web.WebServiceConnectionProperties;
+import com.workfusion.utils.property.PropertyUtils;
+import com.workfusion.utils.security.Credentials;
+import groovy.lang.Binding;
 
 public class BindingUtils {
 
@@ -28,7 +28,13 @@ public class BindingUtils {
         if (binding.hasVariable(property)) {
             return binding.getVariable(property);
         }
-        return !SYS.equals(property) ? getSys(binding).getVar(property) : null;
+        if (!SYS.equals(property)) {
+            SystemUtilities sys = getSys(binding);
+            if (null != sys) {
+                return sys.getVar(property);
+            }
+        }
+        return null;
     }
 
     public static String getPropertyValue(Binding binding, String property) {

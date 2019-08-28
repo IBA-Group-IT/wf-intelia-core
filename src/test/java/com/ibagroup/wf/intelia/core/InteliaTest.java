@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import com.ibagroup.wf.intelia.core.annotations.Wire;
+import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
 import com.ibagroup.wf.intelia.core.metadata.MetadataListManager;
 import com.ibagroup.wf.intelia.core.metadata.MetadataManager;
 import com.ibagroup.wf.intelia.core.robots.factory.ChainMethodWrapper;
@@ -71,10 +72,18 @@ public class InteliaTest {
         }
     }
 
-    public static class TestModule_wire implements Module {
+    public static class TestModule_wireFromBinding implements Module {
         @Provides
         public Binding binding() {
             return binding;
+        }
+    }
+
+
+    public static class TestModule_wireFromCfg extends TestModule_wireFromBinding {
+        @Provides
+        public ConfigurationManager cfg() {
+            return cfg;
         }
     }
 
@@ -104,6 +113,9 @@ public class InteliaTest {
     static Binding binding;
 
     @Mock
+    static ConfigurationManager cfg;
+
+    @Mock
     static Predicate<Method> isTargetMethod;
 
     @Mock
@@ -130,8 +142,8 @@ public class InteliaTest {
 
 
     @Test
-    public void testGetInstance_wire() throws Throwable {
-        Intelia intelia = new Intelia(null, null, null, Collections.singleton(new TestModule_wire()), null);
+    public void testGetInstance_wireFromBinding() throws Throwable {
+        Intelia intelia = new Intelia(null, null, null, Collections.singleton(new TestModule_wireFromBinding()), null);
         when(binding.hasVariable("testParam")).thenReturn(true);
         when(binding.getVariable("testParam")).thenReturn("testParamValue");
         TestRobot_wire robot = intelia.getInstance(TestRobot_wire.class);
@@ -139,6 +151,16 @@ public class InteliaTest {
         assertThat(robot.testParam).isEqualTo("testParamValue");
         verify(binding).hasVariable("testParam");
         verify(binding).getVariable("testParam");
+    }
+
+    @Test
+    public void testGetInstance_wireFromCfg() throws Throwable {
+        Intelia intelia = new Intelia(null, null, null, Collections.singleton(new TestModule_wireFromCfg()), null);
+        when(cfg.getConfigItem("testParam")).thenReturn("testParamValue");
+        TestRobot_wire robot = intelia.getInstance(TestRobot_wire.class);
+        assertThat(robot).isNotNull();
+        assertThat(robot.testParam).isEqualTo("testParamValue");
+        verify(cfg).getConfigItem("testParam");
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.ibagroup.wf.intelia.core;
 
 import static com.ibagroup.wf.intelia.core.PerformMethodWrapperModule.DO_NOT_RETHROW_EXCEPTION_PARAM_NAME;
 import static com.ibagroup.wf.intelia.core.config.DataStoreConfiguration.RPA_CONFIG_DS;
+import static com.ibagroup.wf.intelia.core.datastore.BaseDS.DEFAULT_DATASTORE_PARAM_NAME;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,7 +40,7 @@ import groovy.lang.Binding;
  * @author dmitriev
  *
  */
-public class InteliaBuilder {
+public class InteliaBuilder<T extends InteliaBuilder<T>> {
     private Binding context;
     private Map<String, String> params = new HashMap<>();
     private Set<Module> overrideModules = new HashSet<>();
@@ -50,17 +51,17 @@ public class InteliaBuilder {
         this.context = context;
     }
 
-    public InteliaBuilder params(Map<String, String> params) {
+    public T params(Map<String, String> params) {
         this.params.putAll(params);
-        return this;
+        return (T) this;
     }
 
     /**
      * Adds additional module(s) instances to the injection context
      */
-    public InteliaBuilder additional(Module... modules) {
+    public T additional(Module... modules) {
         additionalModules.addAll(Arrays.asList(modules));
-        return this;
+        return (T) this;
     }
 
     /**
@@ -69,7 +70,7 @@ public class InteliaBuilder {
      * <b>Module class must have no-args constructor for auto-instantiation</b>
      * </p>
      */
-    public InteliaBuilder additional(Class<? extends Module>... modules) {
+    public T additional(Class<? extends Module>... modules) {
         additionalModules.addAll(Arrays.stream(modules).map(c -> {
             try {
                 return c.newInstance();
@@ -77,20 +78,20 @@ public class InteliaBuilder {
                 throw new RuntimeException("Failed to instantiate additional module " + c.getSimpleName(), e);
             }
         }).map(Module.class::cast).collect(Collectors.toSet()));
-        return this;
+        return (T) this;
     }
 
     /**
      * Adds override module(s) instances to the injection context
      */
-    public InteliaBuilder override(Module... modules) {
+    public T override(Module... modules) {
         overrideModules.addAll(Arrays.asList(modules));
-        return this;
+        return (T) this;
     }
 
-    public InteliaBuilder injectFields(Object context) {
+    public T injectFields(Object context) {
         this.injectContext = context;
-        return this;
+        return (T) this;
     }
 
     /**
@@ -104,15 +105,24 @@ public class InteliaBuilder {
      * <li>doNotRethrowException - from <b>doNotRethrowException</b> param
      * </ul>
      */
-    public InteliaBuilder defaultSetup() {
+    public T defaultSetup() {
         return miniSetup().additional(RobotLoggerModule.class, S3MetadataPermanentStorageModule.class, DefaultExceptionHandlerModule.class);
+    }
+
+
+
+    /**
+     * Shortcut for {@code builder.params(ImmutableMap.of(RPA_CONFIG_DS, configDsName))}
+     */
+    public T defaultDatastore(String dsName) {
+        return additional(DefaultDataStoreModule.class).params(ImmutableMap.of(DEFAULT_DATASTORE_PARAM_NAME, dsName));
     }
 
 
     /**
      * Shortcut for {@code builder.params(ImmutableMap.of(RPA_CONFIG_DS, configDsName))}
      */
-    public InteliaBuilder configFromDatastore(String configDsName) {
+    public T configFromDatastore(String configDsName) {
         return params(ImmutableMap.of(RPA_CONFIG_DS, configDsName));
     }
 
@@ -120,7 +130,7 @@ public class InteliaBuilder {
      * Shortcut for
      * {@code builder.params(ImmutableMap.of(DO_NOT_RETHROW_EXCEPTION_PARAM_NAME, String.valueOf(doNotRethrowException)))}
      */
-    public InteliaBuilder doNotRethrowException(boolean doNotRethrowException) {
+    public T doNotRethrowException(boolean doNotRethrowException) {
         return params(ImmutableMap.of(DO_NOT_RETHROW_EXCEPTION_PARAM_NAME, String.valueOf(doNotRethrowException)));
     }
 
@@ -134,7 +144,7 @@ public class InteliaBuilder {
      * <li>method wrappers - {@link PerformMethodWrapper}</li>
      * </ul>
      */
-    public InteliaBuilder miniSetup() {
+    public T miniSetup() {
         return additional(DataStoreConfigurationManagerModule.class, PerformMethodWrapperModule.class);
     }
 
@@ -148,7 +158,7 @@ public class InteliaBuilder {
      * <li>method wrappers - {@link PerformMethodWrapper}</li>
      * </ul>
      */
-    public InteliaBuilder microSetup() {
+    public T microSetup() {
         return nanoSetup().additional(PerformMethodWrapperModule.class);
     }
 
@@ -162,11 +172,32 @@ public class InteliaBuilder {
      * <li>method wrappers - none</li>
      * </ul>
      */
-    public InteliaBuilder nanoSetup() {
+    public T nanoSetup() {
         return additional(ParamsConfigurationManagerModule.class);
     }
 
     public Intelia get() {
         return new Intelia(context, params, additionalModules, overrideModules, injectContext);
     }
+
+    public Binding getContext() {
+        return context;
+    }
+
+    public Map<String, String> getParams() {
+        return params;
+    }
+
+    public Set<Module> getOverrideModules() {
+        return overrideModules;
+    }
+
+    public Set<Module> getAdditionalModules() {
+        return additionalModules;
+    }
+
+    public Object getInjectContext() {
+        return injectContext;
+    }
+
 }
