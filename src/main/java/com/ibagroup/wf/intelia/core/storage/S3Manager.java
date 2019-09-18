@@ -180,4 +180,8 @@ public class S3Manager implements StorageManager {
         return false;
     }
 
+    public String getS3FileWebUrl(String s3Path) {
+        return s3EndpointUrl + "/" + bucket + "/" + initFldr + (s3Path.startsWith("/") ? s3Path.substring(1, s3Path.length()) : s3Path);
+    }
+
 }
