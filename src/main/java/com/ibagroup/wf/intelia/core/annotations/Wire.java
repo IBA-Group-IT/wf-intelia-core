@@ -9,4 +9,5 @@ import java.lang.annotation.Target;
 public @interface Wire {
 	boolean required() default true;
 	String name() default "";
+    String defaultValue() default "";
 }

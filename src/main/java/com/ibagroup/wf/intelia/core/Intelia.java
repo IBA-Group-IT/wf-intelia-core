@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.codejargon.feather.Feather;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import com.ibagroup.wf.intelia.core.robots.factory.ChainMethodWrapper;
 import com.ibagroup.wf.intelia.core.robots.factory.Invocation;
 import com.ibagroup.wf.intelia.core.utils.BindingUtils;
 import com.workfusion.intake.core.Module;
+import com.workfusion.mfw.model.util.StringUtils;
 import groovy.lang.Binding;
 import javassist.util.proxy.ProxyFactory;
 
@@ -39,7 +41,8 @@ import javassist.util.proxy.ProxyFactory;
 public class Intelia implements Injector {
     private static final Logger logger = LoggerFactory.getLogger(Intelia.class);
     protected final Binding context;
-    private final Feather injector;
+    protected final Map<String, String> params;
+    protected final Feather injector;
 
     /**
      * Initializes the Intelia Engine.
@@ -51,6 +54,7 @@ public class Intelia implements Injector {
      */
     protected Intelia(Binding context, Map<String, String> params, Collection<Module> additionalModules, Collection<Module> overrideModules, Object injectContext) {
         this.context = context;
+        this.params = params;
         List<Module> modules = new ArrayList<>();
 
         if (CollectionUtils.isEmpty(overrideModules)) {
@@ -169,8 +173,7 @@ public class Intelia implements Injector {
         }
         // do fields injection as the last step
         injector.injectFields(newInstance);
-        // EXPERIMENTAL - resolve @Wire against Binding and configuration
-        Binding binding = injector.instance(Binding.class);
+        // EXPERIMENTAL - resolve @Wire against params, Binding and configuration
         ConfigurationManager cfg = null;
         try {
             cfg = injector.instance(ConfigurationManager.class);
@@ -183,13 +186,24 @@ public class Intelia implements Injector {
             Object fieldValue = getFieldValue(finalNewInstance, field);
             if (null == fieldValue) {
                 // if not set by Feather -
-                // trying to wire from binding
+                // trying to wire from params, Binding and configuration
                 Wire wireanno = field.getAnnotation(Wire.class);
                 String name = wireanno.name().trim().isEmpty() ? field.getName() : wireanno.name();
-                Object value = BindingUtils.getTypedPropertyValue(binding, name);
+                Object value = null;
+                if (MapUtils.isNotEmpty(params)) {
+                    value = params.get(name);
+                }
+                if (null == value) {
+                    value = BindingUtils.getTypedPropertyValue(context, name);
+                }
                 if (null == value && finalCfg != null) {
                     // try resolve from cfg
                     value = finalCfg.getConfigItem(name);
+                }
+                // if default value set - use it
+                String defaultValue = wireanno.defaultValue();
+                if (null == value && !StringUtils.isBlank(defaultValue)) {
+                    value = defaultValue;
                 }
                 if (null != value) {
                     wireField(field, name, finalNewInstance, value);

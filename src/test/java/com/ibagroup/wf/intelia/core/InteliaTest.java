@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import com.google.common.collect.ImmutableMap;
 import com.ibagroup.wf.intelia.core.annotations.Wire;
 import com.ibagroup.wf.intelia.core.config.ConfigurationManager;
 import com.ibagroup.wf.intelia.core.metadata.MetadataListManager;
@@ -79,6 +80,8 @@ public class InteliaTest {
         }
     }
 
+    public static class EmptyModule implements Module {
+    }
 
     public static class TestModule_wireFromCfg extends TestModule_wireFromBinding {
         @Provides
@@ -140,10 +143,17 @@ public class InteliaTest {
         assertThat(robot.testParam).isEqualTo("testParamValue");
     }
 
+    @Test
+    public void testGetInstance_wireFromParams() throws Throwable {
+        Intelia intelia = new Intelia(binding, ImmutableMap.of("testParam", "testParamValue"), null, Collections.singleton(new EmptyModule()), null);
+        TestRobot_wire robot = intelia.getInstance(TestRobot_wire.class);
+        assertThat(robot).isNotNull();
+        assertThat(robot.testParam).isEqualTo("testParamValue");
+    }
 
     @Test
     public void testGetInstance_wireFromBinding() throws Throwable {
-        Intelia intelia = new Intelia(null, null, null, Collections.singleton(new TestModule_wireFromBinding()), null);
+        Intelia intelia = new Intelia(binding, null, null, Collections.singleton(new EmptyModule()), null);
         when(binding.hasVariable("testParam")).thenReturn(true);
         when(binding.getVariable("testParam")).thenReturn("testParamValue");
         TestRobot_wire robot = intelia.getInstance(TestRobot_wire.class);
@@ -155,7 +165,7 @@ public class InteliaTest {
 
     @Test
     public void testGetInstance_wireFromCfg() throws Throwable {
-        Intelia intelia = new Intelia(null, null, null, Collections.singleton(new TestModule_wireFromCfg()), null);
+        Intelia intelia = new Intelia(binding, null, null, Collections.singleton(new TestModule_wireFromCfg()), null);
         when(cfg.getConfigItem("testParam")).thenReturn("testParamValue");
         TestRobot_wire robot = intelia.getInstance(TestRobot_wire.class);
         assertThat(robot).isNotNull();
