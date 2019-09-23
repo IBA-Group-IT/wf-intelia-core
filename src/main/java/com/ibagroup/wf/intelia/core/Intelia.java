@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.codejargon.feather.Feather;
 import org.slf4j.Logger;
@@ -18,7 +19,6 @@ import com.ibagroup.wf.intelia.core.robots.factory.ChainMethodWrapper;
 import com.ibagroup.wf.intelia.core.robots.factory.Invocation;
 import com.ibagroup.wf.intelia.core.utils.BindingUtils;
 import com.workfusion.intake.core.Module;
-import com.workfusion.mfw.model.util.StringUtils;
 import groovy.lang.Binding;
 import javassist.util.proxy.ProxyFactory;
 
