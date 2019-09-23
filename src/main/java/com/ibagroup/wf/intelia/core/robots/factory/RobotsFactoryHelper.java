@@ -14,7 +14,6 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.ibagroup.wf.intelia.core.annotations.Wire;
-import com.ibagroup.wf.intelia.core.to.BaseTO;
 import com.ibagroup.wf.intelia.core.utils.BindingUtils;
 import groovy.lang.Binding;
 
@@ -105,8 +104,7 @@ public class RobotsFactoryHelper {
 			} else if (field.getType().isAssignableFrom(Array.class)) {
 				value = gson.fromJson(strValue, Array.class);
 			} else if (field.getType().isAssignableFrom(List.class)) {
-			     if (Class.class.isAssignableFrom((((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0]).getClass())
-			             && (BaseTO.class.isAssignableFrom((Class<?>) (((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0])))) {
+                if (Class.class.isAssignableFrom((((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]).getClass())) {
 			         Class clazz = (Class) ((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0];
 			         Type type = new ListParameterizedType(clazz);
 			         value = (Object)gson.fromJson(strValue, type);
