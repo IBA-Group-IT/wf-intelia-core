@@ -193,19 +193,19 @@ public class Intelia implements Injector {
                 if (MapUtils.isNotEmpty(params)) {
                     value = params.get(name);
                 }
-                if (null == value) {
+                if (isEmpty(value)) {
                     value = BindingUtils.getTypedPropertyValue(context, name);
                 }
-                if (null == value && finalCfg != null) {
+                if (isEmpty(value) && finalCfg != null) {
                     // try resolve from cfg
                     value = finalCfg.getConfigItem(name);
                 }
                 // if default value set - use it
                 String defaultValue = wireanno.defaultValue();
-                if (null == value && !StringUtils.isBlank(defaultValue)) {
+                if (isEmpty(value) && !StringUtils.isBlank(defaultValue)) {
                     value = defaultValue;
                 }
-                if (null != value) {
+                if (!isEmpty(value)) {
                     wireField(field, name, finalNewInstance, value);
                     return;
                 }
@@ -220,6 +220,16 @@ public class Intelia implements Injector {
 
 
         return newInstance;
+    }
+
+    private boolean isEmpty(Object value) {
+        if (null != value) {
+            if (value instanceof String) {
+                return StringUtils.isBlank((String) value);
+            }
+            return false;
+        }
+        return true;
     }
 
 }
