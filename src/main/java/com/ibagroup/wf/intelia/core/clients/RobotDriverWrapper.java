@@ -4,7 +4,9 @@ import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.inject.Inject;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.TimeoutException;
@@ -14,7 +16,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Clock;
 import org.openqa.selenium.support.ui.Duration;
 import org.openqa.selenium.support.ui.SystemClock;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
+
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
@@ -29,269 +33,316 @@ import com.workfusion.rpa.helpers.utils.ApiUtils;
 
 public class RobotDriverWrapper {
 
-    @Inject
-    private FlowContext flowContext;
+	protected static final int DEFAULT_WAIT_TIMEOUT_SECONDS = 60;
+	protected static final int DEFAULT_WAIT_LOADING_TIMEOUT_SECONDS = 30 * 60;
+	protected static final int DEFAULT_IMPLICITLY_WAIT_TIMEOUT_SECONDS = 60;
 
-    @Inject
-    private ConfigurationManager cfg = null;
+	@Inject
+	private FlowContext flowContext;
 
-    @Inject
-    private Logger logger = null;
+	@Inject
+	private ConfigurationManager cfg = null;
 
-    @Inject
-    private Injector injector;
+	@Inject
+	private Logger logger = null;
 
-    private Driver driver = null;
+	@Inject
+	private Injector injector;
 
-    public RobotDriverWrapper() {
-        this.driver = ApiUtils.driver();
-        PageFactory.initElements(getDriver(), this);
-    }
+	private Driver driver = null;
 
-    @Inject
-    public RobotDriverWrapper(ConfigurationManager cmn) {
-        this();
-        this.cfg = cmn;
-    }
+	protected WebDriverWait wait;
+	protected WebDriverWait waitLoading;
 
-    public Driver getDriver() {
-        return driver;
-    }
+	private Integer waitTimeoutInSeconds;
+	private Integer waitLoadingTimeoutInSeconds;
+	private Integer implicitlyWaitTimeoutInSeconds;
 
-    public ConfigurationManager getCfg() {
-        return cfg;
-    }
+	public RobotDriverWrapper() {
+		this.driver = ApiUtils.driver();
+		PageFactory.initElements(getDriver(), this);
+		
+		this.wait = new WebDriverWait(getDriver(), getWaitTimeoutInSeconds());
+		this.waitLoading = new WebDriverWait(getDriver(), getWaitLoadingTimeoutInSeconds());
+		getDriver().manage().timeouts().implicitlyWait(getImplicitlyWaitTimeoutInSeconds(), TimeUnit.SECONDS);
+	}
 
-    public FlowContext getFlowContext() {
-        return flowContext;
-    }
+	@Inject
+	public RobotDriverWrapper(FlowContext flowContext, ConfigurationManager cmn) {
+		this();
+		this.flowContext = flowContext;
+		this.cfg = cmn;
+	}
 
-    public Logger getLogger() {
-        return logger;
-    }
+	public Driver getDriver() {
+		return driver;
+	}
 
-    public Injector getInjector() {
-        return injector;
-    }
+	public ConfigurationManager getCfg() {
+		return cfg;
+	}
 
-    public <T> T waitForElement(Function<WebDriver, T> function, int secondsToPoll) {
-        return waitForElement(function, secondsToPoll, false);
-    }
+	public FlowContext getFlowContext() {
+		return flowContext;
+	}
 
-    public <T> T waitForElementNot(Function<WebDriver, T> function, int secondsToPoll) {
-        return waitForElement(function, secondsToPoll, true);
-    }
+	public Logger getLogger() {
+		return logger;
+	}
 
-    public <T> T waitForElement(Function<WebDriver, T> function, int secondsToPoll, boolean notMatch) {
-        Clock clock = new SystemClock();
-        // no way how to check differently without set implicit wait.. that is
-        // not suitable.. as applied globally
-        Duration timeout = new Duration(secondsToPoll, TimeUnit.SECONDS);
+	public Injector getInjector() {
+		return injector;
+	}
 
-        long end = clock.laterBy(timeout.in(TimeUnit.MILLISECONDS));
+	public <T> T waitForElement(Function<WebDriver, T> function, int secondsToPoll) {
+		return waitForElement(function, secondsToPoll, false);
+	}
 
-        Exception lastException = null;
-        logger.info("Waiting for: {} {} seconds, with not_={}", function, secondsToPoll, notMatch);
+	public <T> T waitForElementNot(Function<WebDriver, T> function, int secondsToPoll) {
+		return waitForElement(function, secondsToPoll, true);
+	}
 
-        while (true) {
-            try {
-                T e = function.apply(driver);
-                logger.info("Found: {}", e);
-                if (!notMatch) {
-                    if (e != null && Boolean.class.equals(e.getClass())) {
-                        if (Boolean.TRUE.equals(e)) {
-                            return e;
-                        }
-                    } else if (e != null) {
-                        return e;
-                    }
-                }
-            } catch (Exception arg8) {
-                lastException = arg8;
-                logger.info("waitForElement: {}: {} occured", function, arg8.getMessage());
-                if (notMatch) {
-                    logger.info("return null not_ = {}", notMatch);
-                    return null;
-                }
-            }
+	public <T> T waitForElement(Function<WebDriver, T> function, int secondsToPoll, boolean notMatch) {
+		Clock clock = new SystemClock();
+		// no way how to check differently without set implicit wait.. that is
+		// not suitable.. as applied globally
+		Duration timeout = new Duration(secondsToPoll, TimeUnit.SECONDS);
 
-            if (!clock.isNowBefore(end)) {
-                String toAppend = " waiting for " + function;
-                String timeoutMessage = String.format("Timed out after %d seconds%s", Long.valueOf(timeout.in(TimeUnit.SECONDS)), toAppend);
-                throw new TimeoutException(timeoutMessage, lastException);
-            }
+		long end = clock.laterBy(timeout.in(TimeUnit.MILLISECONDS));
 
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException exep) {
-                Thread.currentThread().interrupt();
-                throw new WebDriverException(exep);
-            }
-        }
+		Exception lastException = null;
+		logger.info("Waiting for: {} {} seconds, with not_={}", function, secondsToPoll, notMatch);
 
-    }
+		while (true) {
+			try {
+				T e = function.apply(driver);
+				logger.info("Found: {}", e);
+				if (!notMatch) {
+					if (e != null && Boolean.class.equals(e.getClass())) {
+						if (Boolean.TRUE.equals(e)) {
+							return e;
+						}
+					} else if (e != null) {
+						return e;
+					}
+				}
+			} catch (Exception arg8) {
+				lastException = arg8;
+				logger.info("waitForElement: {}: {} occured", function, arg8.getMessage());
+				if (notMatch) {
+					logger.info("return null not_ = {}", notMatch);
+					return null;
+				}
+			}
 
-    public void waitAndSwitchToWindow(String windowSearch, int secondsToPoll) {
-        waitAndSwitchToWindow(windowSearch, null, secondsToPoll);
-    }
+			if (!clock.isNowBefore(end)) {
+				String toAppend = " waiting for " + function;
+				String timeoutMessage = String.format("Timed out after %d seconds%s", Long.valueOf(timeout.in(TimeUnit.SECONDS)), toAppend);
+				throw new TimeoutException(timeoutMessage, lastException);
+			}
 
-    public void waitAndSwitchToWindow(String windowSearch, By by, int secondsToPoll) {
-        Duration timeout = new Duration(secondsToPoll, TimeUnit.SECONDS);
-        Clock clock = new SystemClock();
-        long end = clock.laterBy(timeout.in(TimeUnit.MILLISECONDS));
-        Throwable lastException = null;
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException exep) {
+				Thread.currentThread().interrupt();
+				throw new WebDriverException(exep);
+			}
+		}
 
-        while (true) {
-            try {
-                driver.switchTo().window(windowSearch);
-                if (by != null) {
-                    try {
-                        driver.findElement(by);
-                        break; // correct window found
-                    } catch (Exception arg8) {
-                        logger.info("no element found, wrong window");
-                    }
-                } else {
-                    break;
-                }
+	}
 
-            } catch (NoSuchWindowException e) {
-                logger.info("Not found: {}", windowSearch);
-                logger.info("Current windows: {}", driver.getWindowHandles());
-            }
+	public void waitAndSwitchToWindow(String windowSearch, int secondsToPoll) {
+		waitAndSwitchToWindow(windowSearch, null, secondsToPoll);
+	}
 
-            if (!clock.isNowBefore(end)) {
-                String toAppend = " waiting for " + windowSearch + " to be opened";
-                String timeoutMessage = String.format("Timed out after %d seconds%s", Long.valueOf(timeout.in(TimeUnit.SECONDS)), toAppend);
-                throw new TimeoutException(timeoutMessage, lastException);
-            }
+	public void waitAndSwitchToWindow(String windowSearch, By by, int secondsToPoll) {
+		Duration timeout = new Duration(secondsToPoll, TimeUnit.SECONDS);
+		Clock clock = new SystemClock();
+		long end = clock.laterBy(timeout.in(TimeUnit.MILLISECONDS));
+		Throwable lastException = null;
 
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException arg7) {
-                Thread.currentThread().interrupt();
-                throw new WebDriverException(arg7);
-            }
-        }
-        logger.info("Switched to window: {}", windowSearch);
-        logger.info("Current windows: {}", driver.getWindowHandles());
-    }
+		while (true) {
+			try {
+				driver.switchTo().window(windowSearch);
+				if (by != null) {
+					try {
+						driver.findElement(by);
+						break; // correct window found
+					} catch (Exception arg8) {
+						logger.info("no element found, wrong window");
+					}
+				} else {
+					break;
+				}
 
-    public void waitForWindowToBeClosed(String windowSearch, By by, int secondsToPoll) {
-        Duration timeout = new Duration(secondsToPoll, TimeUnit.SECONDS);
-        Clock clock = new SystemClock();
-        long end = clock.laterBy(timeout.in(TimeUnit.MILLISECONDS));
-        Exception lastException = null;
+			} catch (NoSuchWindowException e) {
+				logger.info("Not found: {}", windowSearch);
+				logger.info("Current windows: {}", driver.getWindowHandles());
+			}
 
-        while (true) {
-            try {
-                driver.switchTo().window(windowSearch);
-                if (by != null) {
-                    driver.findElement(by); // if no element found that lookup window closed
-                }
-            } catch (Exception arg8) {
-                lastException = arg8;
-                logger.info("waitForElement: {}: {} closed", windowSearch, arg8.getMessage());
-                break;
-            }
+			if (!clock.isNowBefore(end)) {
+				String toAppend = " waiting for " + windowSearch + " to be opened";
+				String timeoutMessage = String.format("Timed out after %d seconds%s", Long.valueOf(timeout.in(TimeUnit.SECONDS)), toAppend);
+				throw new TimeoutException(timeoutMessage, lastException);
+			}
 
-            if (!clock.isNowBefore(end)) {
-                String toAppend = " waiting for " + windowSearch + " to be closed";
-                String timeoutMessage = String.format("Timed out after %d seconds%s", Long.valueOf(timeout.in(TimeUnit.SECONDS)), toAppend);
-                throw new TimeoutException(timeoutMessage, lastException);
-            }
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException arg7) {
+				Thread.currentThread().interrupt();
+				throw new WebDriverException(arg7);
+			}
+		}
+		logger.info("Switched to window: {}", windowSearch);
+		logger.info("Current windows: {}", driver.getWindowHandles());
+	}
 
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException arg7) {
-                Thread.currentThread().interrupt();
-                throw new WebDriverException(arg7);
-            }
-        }
-    }
+	public void waitForWindowToBeClosed(String windowSearch, By by, int secondsToPoll) {
+		Duration timeout = new Duration(secondsToPoll, TimeUnit.SECONDS);
+		Clock clock = new SystemClock();
+		long end = clock.laterBy(timeout.in(TimeUnit.MILLISECONDS));
+		Exception lastException = null;
 
-    /**
-     * Get attribute value from element in json format please also note that this should be
-     * configured for driver to be able to get JSON attribute
-     * seleniumDriver.manage().set("returnType", "JSON");
-     *
-     * @param elem - web element on which we want to get attribute from
-     * @param attribute - attribute name of element
-     *
-     * @return parsed json object
-     */
-    public JsonElement getElemAttributeAsJson(WebElement elem, String attribute) {
+		while (true) {
+			try {
+				driver.switchTo().window(windowSearch);
+				if (by != null) {
+					driver.findElement(by); // if no element found that lookup window closed
+				}
+			} catch (Exception arg8) {
+				lastException = arg8;
+				logger.info("waitForElement: {}: {} closed", windowSearch, arg8.getMessage());
+				break;
+			}
 
-        try {
-            Method method = driver.manage().getClass().getMethod("set", String.class, String.class);
-            method.invoke(driver.manage(), "returnType", "JSON");
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            throw new RuntimeException("Not able to set JSON return value", e);
-        }
+			if (!clock.isNowBefore(end)) {
+				String toAppend = " waiting for " + windowSearch + " to be closed";
+				String timeoutMessage = String.format("Timed out after %d seconds%s", Long.valueOf(timeout.in(TimeUnit.SECONDS)), toAppend);
+				throw new TimeoutException(timeoutMessage, lastException);
+			}
 
-        logger.info("Trying to get attribute [{}] of element ", elem);
-        Gson gson = new Gson();
-        String attr = elem.getAttribute(attribute);
-        logger.info("Got value: {}", attr);
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException arg7) {
+				Thread.currentThread().interrupt();
+				throw new WebDriverException(arg7);
+			}
+		}
+	}
 
-        if (attr != null && !attr.isEmpty()) {
-            JsonElement obj = gson.fromJson(attr, JsonElement.class);
-            logger.info("Parsed to Json: {}", obj);
-            return obj;
-        }
+	/**
+	 * Get attribute value from element in json format please also note that this should be configured for driver to be
+	 * able to get JSON attribute seleniumDriver.manage().set("returnType", "JSON");
+	 *
+	 * @param elem
+	 *            - web element on which we want to get attribute from
+	 * @param attribute
+	 *            - attribute name of element
+	 *
+	 * @return parsed json object
+	 */
+	public JsonElement getElemAttributeAsJson(WebElement elem, String attribute) {
 
-        return null;
-    }
+		try {
+			Method method = driver.manage().getClass().getMethod("set", String.class, String.class);
+			method.invoke(driver.manage(), "returnType", "JSON");
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new RuntimeException("Not able to set JSON return value", e);
+		}
 
-    /**
-     * Waits until console screen will contains specified text
-     *
-     * @param text for verification
-     * @param seconds to wait
-     */
-    public void waitForConsoleScreenToBeLoaded(String verificationText, int secondsToPoll) {
-        this.waitForConsoleScreenToBeLoaded(verificationText, secondsToPoll, false);
-    }
+		logger.info("Trying to get attribute [{}] of element ", elem);
+		Gson gson = new Gson();
+		String attr = elem.getAttribute(attribute);
+		logger.info("Got value: {}", attr);
 
-    /**
-     * Waits until console screen stops having contain specific text.
-     *
-     * @param text for verification
-     * @param seconds to wait
-     */
-    public void waitForConsoleScreenToBeLoaded(String verificationText, int secondsToPoll, boolean useNegativeCondition) {
-        Duration timeout = new Duration(secondsToPoll, TimeUnit.SECONDS);
-        Clock clock = new SystemClock();
-        long end = clock.laterBy(timeout.in(TimeUnit.MILLISECONDS));
+		if (attr != null && !attr.isEmpty()) {
+			JsonElement obj = gson.fromJson(attr, JsonElement.class);
+			logger.info("Parsed to Json: {}", obj);
+			return obj;
+		}
 
-        String regexp = "";
-        if (useNegativeCondition) {
-            regexp = "^(?!(.*)" + verificationText + "(.*)).*$";
-        } else {
-            regexp = "^((.*)" + verificationText + "(.*)).*$";
-        }
-        Pattern p = Pattern.compile(regexp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        while (true) {
-            String selectedText = Strings.nullToEmpty(RPA.selectAllTextAndCopy());
-            Matcher m = p.matcher(selectedText);
-            if (m.find()) {
-                break;
-            }
+		return null;
+	}
 
-            if (!clock.isNowBefore(end)) {
-                String toAppend = " waiting for " + verificationText + " to be present";
-                String timeoutMessage = String.format("Timed out after %d seconds%s", Long.valueOf(timeout.in(TimeUnit.SECONDS)), toAppend);
-                throw new TimeoutException(timeoutMessage);
-            }
+	/**
+	 * Waits until console screen will contains specified text
+	 *
+	 * @param text
+	 *            for verification
+	 * @param seconds
+	 *            to wait
+	 */
+	public void waitForConsoleScreenToBeLoaded(String verificationText, int secondsToPoll) {
+		this.waitForConsoleScreenToBeLoaded(verificationText, secondsToPoll, false);
+	}
 
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException arg7) {
-                Thread.currentThread().interrupt();
-                throw new WebDriverException(arg7);
-            }
-        }
-    }
+	/**
+	 * Waits until console screen stops having contain specific text.
+	 *
+	 * @param text
+	 *            for verification
+	 * @param seconds
+	 *            to wait
+	 */
+	public void waitForConsoleScreenToBeLoaded(String verificationText, int secondsToPoll, boolean useNegativeCondition) {
+		Duration timeout = new Duration(secondsToPoll, TimeUnit.SECONDS);
+		Clock clock = new SystemClock();
+		long end = clock.laterBy(timeout.in(TimeUnit.MILLISECONDS));
 
+		String regexp = "";
+		if (useNegativeCondition) {
+			regexp = "^(?!(.*)" + verificationText + "(.*)).*$";
+		} else {
+			regexp = "^((.*)" + verificationText + "(.*)).*$";
+		}
+		Pattern p = Pattern.compile(regexp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+		while (true) {
+			String selectedText = Strings.nullToEmpty(RPA.selectAllTextAndCopy());
+			Matcher m = p.matcher(selectedText);
+			if (m.find()) {
+				break;
+			}
+
+			if (!clock.isNowBefore(end)) {
+				String toAppend = " waiting for " + verificationText + " to be present";
+				String timeoutMessage = String.format("Timed out after %d seconds%s", Long.valueOf(timeout.in(TimeUnit.SECONDS)), toAppend);
+				throw new TimeoutException(timeoutMessage);
+			}
+
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException arg7) {
+				Thread.currentThread().interrupt();
+				throw new WebDriverException(arg7);
+			}
+		}
+	}
+
+	protected int getWaitTimeoutInSeconds() {
+		return waitTimeoutInSeconds != null ? waitTimeoutInSeconds : DEFAULT_WAIT_TIMEOUT_SECONDS;
+	}
+
+	protected void setWaitTimeoutInSeconds(int timeout) {
+		waitTimeoutInSeconds = timeout;
+		wait = new WebDriverWait(getDriver(), waitTimeoutInSeconds);
+	}
+
+	protected int getWaitLoadingTimeoutInSeconds() {
+		return waitLoadingTimeoutInSeconds != null ? waitLoadingTimeoutInSeconds : DEFAULT_WAIT_LOADING_TIMEOUT_SECONDS;
+	}
+
+	protected void setWaitLaodingTimeoutInSeconds(int timeout) {
+		waitLoadingTimeoutInSeconds = timeout;
+		waitLoading = new WebDriverWait(getDriver(), waitLoadingTimeoutInSeconds);
+	}
+
+	protected int getImplicitlyWaitTimeoutInSeconds() {
+		return implicitlyWaitTimeoutInSeconds != null ? implicitlyWaitTimeoutInSeconds : DEFAULT_IMPLICITLY_WAIT_TIMEOUT_SECONDS;
+	}
+
+	protected void setImplicitlyWaitTimeoutInSeconds(int timeout) {
+		implicitlyWaitTimeoutInSeconds = timeout;
+		getDriver().manage().timeouts().implicitlyWait(implicitlyWaitTimeoutInSeconds, TimeUnit.SECONDS);
+	}
 }

@@ -11,9 +11,10 @@ import javax.imageio.ImageIO;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.UnhandledAlertException;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,39 +24,25 @@ import com.workfusion.rpa.helpers.RPA;
 
 public abstract class BasePage extends RobotDriverWrapper {
 
-	protected static final int DEFAULT_WAIT_TIMEOUT_SECONDS = 30;
-	protected static final int DEFAULT_WAIT_LOADING_TIMEOUT_SECONDS = 30 * 60;
-	protected static final int DEFAULT_WAIT_SWITCH_WINDOW_SECONDS = 5;
-	protected static final int DEFAULT_IMPLICITLY_WAIT_TIMEOUT = 5;
-
 	private static final Logger logger = LoggerFactory.getLogger(BasePage.class);
 
 	private static final String SAVE_AS_WINDOW_CSS = "[CLASS:#32770; TITLE:Save As]";
 	private static final String OPEN_FILE_WINDOW_CSS = "[CLASS:#32770; TITLE:Open]";
 
-	protected final WebDriverWait wait;
-	protected final WebDriverWait waitLoading;
-
 	@Wait(waitFunc = Wait.WaitFunc.CLICKABLE, value = DEFAULT_WAIT_TIMEOUT_SECONDS)
-	@FindBy(css = "[CLASS:Edit;INSTANCE:1]")
+	@FindBy(css = "[CLASS:Edit]")
 	private WebElement filePathField;
 
 	@Wait(waitFunc = Wait.WaitFunc.CLICKABLE, value = DEFAULT_WAIT_TIMEOUT_SECONDS)
-	@FindBy(css = "[CLASS:Button;INSTANCE:2]")
+	@FindBy(css = "[CLASS:Button; NAME:Save]")
 	private WebElement saveBtn;
 
 	@Wait(waitFunc = Wait.WaitFunc.CLICKABLE, value = DEFAULT_WAIT_TIMEOUT_SECONDS)
-	@FindBy(css = "[CLASS:Button;INSTANCE:1]")
+	@FindBy(css = "[CLASS:Button; NAME:Open]")
 	private WebElement openBtn;
 
-	public BasePage() {
-		super();
-		wait = new WebDriverWait(getDriver(), DEFAULT_WAIT_TIMEOUT_SECONDS);
-		waitLoading = new WebDriverWait(getDriver(), DEFAULT_WAIT_LOADING_TIMEOUT_SECONDS);
-	}
-
 	public void chooseFile(String filePath) {
-		waitAndSwitchToWindow(OPEN_FILE_WINDOW_CSS, DEFAULT_WAIT_SWITCH_WINDOW_SECONDS);
+		RPA.switchToExistingWindow(OPEN_FILE_WINDOW_CSS, getWaitLoadingTimeoutInSeconds() * 1000L);
 
 		RPA.setClipboardText(filePath);
 		filePathField.click();
@@ -66,7 +53,8 @@ public abstract class BasePage extends RobotDriverWrapper {
 	}
 
 	public void saveAsFile(String filePath) {
-		waitAndSwitchToWindow(SAVE_AS_WINDOW_CSS, DEFAULT_WAIT_SWITCH_WINDOW_SECONDS);
+		RPA.switchToExistingWindow(SAVE_AS_WINDOW_CSS, getWaitLoadingTimeoutInSeconds() * 1000L);
+		String saveAsWinHandle = RPA.driver().getWindowHandle();
 
 		RPA.setClipboardText(filePath);
 		filePathField.click();
@@ -74,6 +62,12 @@ public abstract class BasePage extends RobotDriverWrapper {
 		RPA.pressCtrlV();
 
 		saveBtn.click();
+
+		wait.until(new ExpectedCondition<Boolean>() {
+			public Boolean apply(WebDriver driver) {
+				return !RPA.driver().getWindowHandles().contains(saveAsWinHandle);
+			}
+		});
 	}
 
 	public boolean isElementExist(By elementLocator) {
@@ -91,7 +85,7 @@ public abstract class BasePage extends RobotDriverWrapper {
 			logger.error(String.format("Cannot find element using '%s' because an error occured.", elementLocator), e);
 			return false;
 		} finally {
-			getDriver().manage().timeouts().implicitlyWait(DEFAULT_IMPLICITLY_WAIT_TIMEOUT, TimeUnit.SECONDS);
+			getDriver().manage().timeouts().implicitlyWait(getImplicitlyWaitTimeoutInSeconds(), TimeUnit.SECONDS);
 		}
 	}
 
@@ -111,4 +105,5 @@ public abstract class BasePage extends RobotDriverWrapper {
 			throw new RuntimeException("Taking of screenshot has failed.", e);
 		}
 	}
+
 }
