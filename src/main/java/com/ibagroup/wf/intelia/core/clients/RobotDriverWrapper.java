@@ -51,12 +51,12 @@ public class RobotDriverWrapper {
 
 	private Driver driver = null;
 
-	protected WebDriverWait wait;
-	protected WebDriverWait waitLoading;
-
 	private Integer waitTimeoutInSeconds;
 	private Integer waitLoadingTimeoutInSeconds;
 	private Integer implicitlyWaitTimeoutInSeconds;
+	
+	protected WebDriverWait wait;
+	protected WebDriverWait waitLoading;
 
 	public RobotDriverWrapper() {
 		this.driver = ApiUtils.driver();
@@ -317,6 +317,14 @@ public class RobotDriverWrapper {
 				throw new WebDriverException(arg7);
 			}
 		}
+	}
+	
+	protected WebDriverWait waiting(){
+		return wait;
+	}
+	
+	protected WebDriverWait waitLoading(){
+		return waitLoading;
 	}
 
 	protected int getWaitTimeoutInSeconds() {
