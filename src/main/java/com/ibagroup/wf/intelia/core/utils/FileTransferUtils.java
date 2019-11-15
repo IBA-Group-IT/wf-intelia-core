@@ -288,7 +288,7 @@ public class FileTransferUtils {
 				script.append("FileUtils.deleteQuietly(tmpFile);\n");
 				script.append("return destFile.getAbsolutePath();");
 
-				Object res = com.workfusion.rpa.helpers.Script.executeGroovyScript(script.toString());
+				Object res = MachineVersionAdaptations.executeGroovyScript(script.toString());
 
 				if (res == null) {
 					throw new RuntimeException("A problem occurred during join splited file. RPA Agent has returned NULL. See logs of RPA Agent.");
