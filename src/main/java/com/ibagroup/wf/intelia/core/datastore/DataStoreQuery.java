@@ -14,6 +14,12 @@ import com.freedomoss.crowdcontrol.webharvest.plugin.datastore.dto.DbRowDTO;
 import com.freedomoss.crowdcontrol.webharvest.plugin.datastore.service.IRemoteDataStoreService;
 import com.freedomoss.crowdcontrol.webharvest.plugin.datastore.util.DataStoreUtils;
 import groovy.lang.Binding;
+import org.apache.commons.lang3.StringUtils;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DataStoreQuery extends DataStoreAccess {
 
@@ -21,8 +27,12 @@ public class DataStoreQuery extends DataStoreAccess {
     
     public static final String QUERY_SELECT_ALL = "select * from @this;";
 
+    public DataStoreQuery(Binding binding, Connection connection) {
+        super(binding, connection);
+    }
+
     public DataStoreQuery(Binding binding) {
-        super(binding);
+        super(binding, null);
     }
 
     public DataStoreQuery(Binding binding, String username, String password, String url) {
@@ -45,12 +55,24 @@ public class DataStoreQuery extends DataStoreAccess {
         IRemoteDataStoreService remoteDataStoreService = getRemoteDataStoreService(getDsProperties());
         try {
             if (remoteDataStoreService.isSelectQuery(_query)) {
-                select = remoteDataStoreService.executeSelectQuery(maxRows, _query);
+                if (connection != null) {
+                    select = remoteDataStoreService.executeSelectQuery(maxRows, _query, connection);
+                } else {
+                    select = remoteDataStoreService.executeSelectQuery(maxRows, _query);
+                }
             } else if ((remoteDataStoreService.isUpdateQuery(_query) || remoteDataStoreService.isDeleteQuery(_query))) {
                 DataStoreAuditContext auditContext = this.createAuditContext();
-                rows = remoteDataStoreService.executeUpdateQuery(_query, dsName, auditContext);
+                if (connection != null) {
+                    rows = remoteDataStoreService.executeUpdateQuery(_query, dsName, connection, auditContext);
+                } else {
+                    rows = remoteDataStoreService.executeUpdateQuery(_query, dsName, auditContext);
+                }
             } else {
-                executed = remoteDataStoreService.executeQuery(_query);
+                if (connection != null) {
+                    executed = remoteDataStoreService.executeQuery(_query, connection);
+                } else {
+                    executed = remoteDataStoreService.executeQuery(_query);
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);

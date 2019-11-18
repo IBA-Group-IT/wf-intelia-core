@@ -14,16 +14,27 @@ import com.freedomoss.workfusion.utils.gson.GsonUtils;
 import com.google.gson.reflect.TypeToken;
 import groovy.lang.Binding;
 
+import java.lang.reflect.Type;
+import java.sql.Connection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
 public class DataStoreInsert extends DataStoreAccess {
 
     public DataStoreInsert(Binding binding, String username, String password, String url) {
         super(binding, username, password, url);
     }
 
-    private static final Type TYPE_DATASTORE_ROW = new TypeToken<DataStoreRow>() {}.getType();
+    private static final Type TYPE_DATASTORE_ROW = new TypeToken<DataStoreRow>() {
+    }.getType();
+
+    public DataStoreInsert(Binding binding, Connection connection) {
+        super(binding, connection);
+    }
 
     public DataStoreInsert(Binding binding) {
-        super(binding);
+        super(binding, null);
     }
 
     private boolean create = false;
@@ -49,7 +60,11 @@ public class DataStoreInsert extends DataStoreAccess {
 
         Long recordId;
         try {
-            recordId = remoteDataStoreService.insertRow(dsName, row, createAuditContext());
+            if (connection != null) {
+                recordId = remoteDataStoreService.insertRow(dsName, row, connection, createAuditContext());
+            } else {
+                recordId = remoteDataStoreService.insertRow(dsName, row, createAuditContext());
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -3,6 +3,7 @@ package com.ibagroup.wf.intelia.core.storage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -130,6 +131,20 @@ public class S3Manager implements StorageManager {
             return func.apply(manager.getAmazonS3Client());
         } finally {
             manager.shutdownNow();
+        }
+    }
+
+    public URL getResourceURL(String path_) {
+        try {
+            String path = initFldr + path_;
+            logger.info("Getting file URL: " + bucket + " and path: " + path);
+
+            return wrapTransferInvoke((client) -> {
+                return client.getUrl(bucket, path);
+            });
+
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
     }
 
