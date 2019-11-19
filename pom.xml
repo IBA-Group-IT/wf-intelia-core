@@ -54,7 +54,7 @@
 	<groupId>com.ibagroup.wf</groupId>
 	<artifactId>intelia-core</artifactId>
 	<packaging>jar</packaging>
-	<version>${intelia.version}.0.24</version>
+	<version>${intelia.version}.0.25</version>
 
 	<name>Intelia Core Project</name>
 
@@ -373,18 +373,26 @@
 
 	<repositories>
 		<repository>
+			<id>temp-snapshots</id>
+			<url>${env.TEMP_REPO_URL}/snapshots</url>
+		</repository>
+		<repository>
+			<id>temp-releases</id>
+			<url>${env.TEMP_REPO_URL}/releases</url>
+		</repository>
+		<repository>
 			<id>central</id>
 			<url>${env.MAVEN_REPO_URL}/maven-public</url>
 		</repository>
 		<repository>
 			<!-- WF machine build's dependencies fix -->
 			<id>local-nexus</id>
-			<url>${env.MAVEN_REPO_URL}/maven-public</url>
+			<url>${env.MAVEN_REPO_URL}/local-mcb-repo</url>
 		</repository>
 		<repository>
 			<!-- WF machine build's dependencies fix -->
 			<id>jboss-snapshot</id>
-			<url>${env.MAVEN_REPO_URL}/maven-public</url>
+			<url>${env.MAVEN_REPO_URL}/local-mcb-repo</url>
 		</repository>
 	</repositories>
 

@@ -57,7 +57,7 @@ public class WfSecurityBridge {
         SecureEntryDtoWrapper entry = wrap(entryProvider.getUserSecureEntry(params), WRAPPER);
 
         try {
-            if (entry != null) {
+            if (entry == null) {
                 entry = wrap(getServiceFromWebAppContext(getISecureStoreServiceClass()).getEntry(alias), WRAPPER);
             }
         } catch (Throwable e) {
