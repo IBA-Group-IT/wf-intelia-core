@@ -1,6 +1,7 @@
 package com.ibagroup.wf.intelia.core.datastore;
 
 import java.lang.reflect.Type;
+import java.sql.Connection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,13 +15,9 @@ import com.freedomoss.workfusion.utils.gson.GsonUtils;
 import com.google.gson.reflect.TypeToken;
 import groovy.lang.Binding;
 
-import java.lang.reflect.Type;
-import java.sql.Connection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-
 public class DataStoreInsert extends DataStoreAccess {
+
+    private boolean create = false;
 
     public DataStoreInsert(Binding binding, String username, String password, String url) {
         super(binding, username, password, url);
@@ -37,7 +34,11 @@ public class DataStoreInsert extends DataStoreAccess {
         super(binding, null);
     }
 
-    private boolean create = false;
+    public DataStoreInsert(Binding binding, boolean create) {
+        this(binding);
+        this.create = create;
+    }
+
 
     public void setCreate(boolean create) {
         this.create = create;
