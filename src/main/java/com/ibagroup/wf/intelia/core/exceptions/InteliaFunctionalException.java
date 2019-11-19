@@ -1,5 +1,7 @@
 package com.ibagroup.wf.intelia.core.exceptions;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 public class InteliaFunctionalException extends Exception {
 
     protected InteliaErrorDescription error;
@@ -12,7 +14,7 @@ public class InteliaFunctionalException extends Exception {
 
     public InteliaFunctionalException(InteliaErrorDescription error, Object... details) {
         super(error.getMessage(details));
-        this.hcErrorMessage = error.getMessage(details);
+        this.hcErrorMessage = error.getMessage(details) + (getCause() != null ? ("\n" + ExceptionUtils.getStackTrace(getCause())) : "");
         this.error = error;
     }
 
