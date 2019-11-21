@@ -37,7 +37,7 @@ public class BaseWebPage extends BasePage {
 			logger.error(String.format("Cannot find element using '%s' because an error occured.", elementLocator), e);
 			return false;
 		} finally {
-			getDriver().manage().timeouts().implicitlyWait(DEFAULT_IMPLICITLY_WAIT_TIMEOUT, TimeUnit.SECONDS);
+			getDriver().manage().timeouts().implicitlyWait(getImplicitlyWaitTimeoutInSeconds(), TimeUnit.SECONDS);
 		}
 	}
 

@@ -7,7 +7,8 @@ public class RobotException extends RuntimeException {
 
 	private static final long serialVersionUID = -3347747870099784171L;
 
-	private int errorCode = -1;
+	private ErrorDescription errorDescription;
+	private String localizedMessage;
 
 	private Map<String, String> params = new HashMap<String, String>();
 
@@ -15,40 +16,44 @@ public class RobotException extends RuntimeException {
 		super();
 	}
 
-	public RobotException(int errorCode) {
-		super();
-		this.errorCode = errorCode;
+	public RobotException(ErrorDescription errorDescription, Object... params) {
+		super(errorDescription.getMessage(params));
+		this.errorDescription = errorDescription;
+		this.localizedMessage = errorDescription.getLocalizedMessage(params);
 	}
 
 	public RobotException(String message) {
 		super(message);
 	}
 
-	public RobotException(int errorCode, String message) {
-		super(message);
-		this.errorCode = errorCode;
-	}
-
 	public RobotException(Exception cause) {
 		super(cause);
 	}
 
-	public RobotException(int errorCode, Exception cause) {
-		super(cause);
-		this.errorCode = errorCode;
+	public RobotException(Exception cause, ErrorDescription errorDescription, Object... params) {
+		super(errorDescription.getMessage(params), cause);
+		this.errorDescription = errorDescription;
+		this.localizedMessage = errorDescription.getLocalizedMessage(params);
 	}
 
 	public RobotException(String message, Exception cause) {
 		super(message, cause);
 	}
 
-	public RobotException(int errorCode, String message, Exception cause) {
-		super(message, cause);
-		this.errorCode = errorCode;
+	public ErrorDescription getErrorDescription() {
+		return errorDescription;
 	}
 
-	public int getErrorCode() {
-		return errorCode;
+	@Override
+	public String getLocalizedMessage() {
+		return localizedMessage != null ? localizedMessage : super.getLocalizedMessage();
+	}
+
+	@Override
+	public String toString() {
+		String s = getClass().getName();
+		String message = getMessage();
+		return (message != null) ? (s + ": " + message) : s;
 	}
 
 	public RobotException put(String key, String value) {
@@ -58,5 +63,9 @@ public class RobotException extends RuntimeException {
 
 	public String get(String key) {
 		return params.get(key);
+	}
+
+	public Map<String, String> getParams() {
+		return params;
 	}
 }

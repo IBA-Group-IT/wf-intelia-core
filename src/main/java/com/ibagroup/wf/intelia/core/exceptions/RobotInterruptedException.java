@@ -8,31 +8,23 @@ public class RobotInterruptedException extends RobotException {
 		super();
 	}
 
-	public RobotInterruptedException(int errorCode) {
-		super(errorCode);
+	public RobotInterruptedException(ErrorDescription errorDescription, Object... params) {
+		super(errorDescription, params);
 	}
 
 	public RobotInterruptedException(String message) {
 		super(message);
 	}
 
-	public RobotInterruptedException(int errorCode, String message) {
-		super(errorCode, message);
-	}
-
 	public RobotInterruptedException(Exception cause) {
 		super(cause);
 	}
 
-	public RobotInterruptedException(int errorCode, Exception cause) {
-		super(errorCode, cause);
+	public RobotInterruptedException(Exception cause, ErrorDescription errorDescription, Object... params) {
+		super(cause, errorDescription, params);
 	}
 
 	public RobotInterruptedException(String message, Exception cause) {
 		super(message, cause);
-	}
-
-	public RobotInterruptedException(int errorCode, String message, Exception cause) {
-		super(errorCode, message, cause);
 	}
 }
