@@ -19,7 +19,8 @@ import com.ibagroup.wf.intelia.core.utils.MethodUtils;
 public class PerformMethodWrapper extends ChainMethodWrapper {
 
     private static final Logger logger = LoggerFactory.getLogger(PerformMethodWrapper.class);
-    public final static Predicate<Method> isPerformMethod = m -> "perform".equalsIgnoreCase(m.getName());
+    // Any methods starts with perform
+    public final static Predicate<Method> isPerformMethod = m -> m.getName().matches("perform.*");
 
     private final boolean uploadAfterEachPerform;
     private final boolean uploadAfterFailure;

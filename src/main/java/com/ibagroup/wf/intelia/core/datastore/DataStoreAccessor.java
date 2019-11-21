@@ -35,6 +35,11 @@ public class DataStoreAccessor {
                 dsName);
     }
 
+    public DataStoreAccessor(FlowContext flowContext, String dsName, boolean create) {
+        this(flowContext, new DataStoreQuery(flowContext.getBinding()), new DataStoreInsert(flowContext.getBinding(), create),
+                new DataStoreUpdateWithReturn(flowContext.getBinding()), dsName);
+    }
+
     public DataStoreAccessor(FlowContext flowContext, DataStoreQuery dataStoreQuery, DataStoreInsert dataStoreInsert, DataStoreUpdateWithReturn dataStoreUpdateWithReturn,
             String dsName) {
         this.flowContext = flowContext;
@@ -89,9 +94,9 @@ public class DataStoreAccessor {
         }
     }
 
-    public void delete(String deleteQuery) {
+    public int delete(String deleteQuery) {
         try {
-            dataStoreQuery.executeQuery(dsName, deleteQuery);
+            return dataStoreQuery.executeQuery(dsName, deleteQuery).getNumberOfRowsAffected();
         } catch (RuntimeException e) {
             flowContext.debug("Deleting rows in data store {}: {}", dsName, deleteQuery);
             flowContext.error("Error deleting rows in data store {}:{}", dsName, e.getMessage());

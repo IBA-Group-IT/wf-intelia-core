@@ -1,13 +1,15 @@
 package com.ibagroup.wf.intelia.core.datastore;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import com.freedomoss.crowdcontrol.webharvest.plugin.datastore.service.IRemoteDataStoreService;
 import com.freedomoss.crowdcontrol.webharvest.plugin.datastore.util.DataStoreUtils;
 import com.ibagroup.wf.intelia.core.datastore.DataStoreQuery.RowItem;
 import groovy.lang.Binding;
+
+import java.sql.Connection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -15,14 +17,17 @@ import groovy.lang.Binding;
  * Basically its a very handy replacement for Select For Update + Update.
  * </p>
  * <b>Note: </b>Works with PostGre ONLY !!!
- * 
- * @author dmitriev
  *
+ * @author dmitriev
  */
 public class DataStoreUpdateWithReturn extends DataStoreAccess {
 
     public DataStoreUpdateWithReturn(Binding binding) {
-        super(binding);
+        super(binding, null);
+    }
+
+    public DataStoreUpdateWithReturn(Binding binding, Connection connection) {
+        super(binding, connection);
     }
 
     public List<Map<String, String>> executeUpdateWithReturn(String dsName, String query) {

@@ -1,6 +1,7 @@
 package com.ibagroup.wf.intelia.core.datastore;
 
 import java.lang.reflect.Type;
+import java.sql.Connection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,17 +17,28 @@ import groovy.lang.Binding;
 
 public class DataStoreInsert extends DataStoreAccess {
 
+    private boolean create = false;
+
     public DataStoreInsert(Binding binding, String username, String password, String url) {
         super(binding, username, password, url);
     }
 
-    private static final Type TYPE_DATASTORE_ROW = new TypeToken<DataStoreRow>() {}.getType();
+    private static final Type TYPE_DATASTORE_ROW = new TypeToken<DataStoreRow>() {
+    }.getType();
 
-    public DataStoreInsert(Binding binding) {
-        super(binding);
+    public DataStoreInsert(Binding binding, Connection connection) {
+        super(binding, connection);
     }
 
-    private boolean create = false;
+    public DataStoreInsert(Binding binding) {
+        super(binding, null);
+    }
+
+    public DataStoreInsert(Binding binding, boolean create) {
+        this(binding);
+        this.create = create;
+    }
+
 
     public void setCreate(boolean create) {
         this.create = create;
@@ -49,7 +61,11 @@ public class DataStoreInsert extends DataStoreAccess {
 
         Long recordId;
         try {
-            recordId = remoteDataStoreService.insertRow(dsName, row, createAuditContext());
+            if (connection != null) {
+                recordId = remoteDataStoreService.insertRow(dsName, row, connection, createAuditContext());
+            } else {
+                recordId = remoteDataStoreService.insertRow(dsName, row, createAuditContext());
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

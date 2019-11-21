@@ -1,9 +1,5 @@
 package com.ibagroup.wf.intelia.core.datastore;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-import javax.sql.DataSource;
 import com.freedomoss.crowdcontrol.webharvest.plugin.datastore.AbstractDataStorePlugin;
 import com.freedomoss.crowdcontrol.webharvest.plugin.datastore.audit.DataStoreAuditContext;
 import com.freedomoss.crowdcontrol.webharvest.plugin.datastore.dto.DataStoreTransaction;
@@ -15,6 +11,13 @@ import com.ibagroup.wf.intelia.core.utils.BindingUtils;
 import com.workfusion.utils.security.DatabaseProperties;
 import groovy.lang.Binding;
 
+import javax.sql.DataSource;
+import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+
 public class DataStoreAccess {
 
     private static final RemoteDataStoreServiceFactory REMOTE_DATA_STORE_SERVICE_FACTORY = getRemoteDataStoreServiceFactory();
@@ -22,9 +25,10 @@ public class DataStoreAccess {
     private DatabaseProperties dsProperties = null;
     private Binding binding = null;
 
-    public DataStoreAccess(Binding binding) {
+    public DataStoreAccess(Binding binding, Connection connection) {
         super();
         this.binding = binding;
+        this.connection = connection;
         this.dsProperties = BindingUtils.getTypedPropertyValue(binding, "dataStoreProperties");
     }
 
@@ -45,9 +49,9 @@ public class DataStoreAccess {
      * `com\workfusion\studio\datastore\InMemoryDataStoreService` and ability to update data stories
      * locally.
      *
+     * @return RemoteDataStoreServiceFactory instance
      * @see com.workfusion.studio.datastore.StudioDataStoreServiceFactory
      * @see com.workfusion.studio.datastore.InMemoryDataStoreService
-     * @return RemoteDataStoreServiceFactory instance
      */
     private static RemoteDataStoreServiceFactory getRemoteDataStoreServiceFactory() {
         try {
@@ -90,6 +94,59 @@ public class DataStoreAccess {
             binding.setVariable("databaseTransactions", result);
         }
         return result;
+    }
+
+    protected Connection connection = null;
+
+    public Connection startTransaction(int transactionIsolation) {
+
+        try {
+            DataSource dataSource = getDataSource();
+            connection = dataSource.getConnection();
+            connection.setTransactionIsolation(transactionIsolation);
+            connection.setAutoCommit(false); // start transaction
+            return connection;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void commitTransaction() {
+        try {
+            if (connection != null) {
+                connection.commit();
+                closeConnection();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void rollbackTransaction() {
+        try {
+            if (connection != null) {
+                connection.rollback();
+                closeConnection();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void closeConnection() {
+        try {
+            if (connection != null) {
+                connection.close();
+                connection = null;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Connection getConnection() {
+        return connection;
     }
 
 }

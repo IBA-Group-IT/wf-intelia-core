@@ -9,6 +9,8 @@
 				<intelia.version>90</intelia.version>
 				<intelia.adaptations.version>90.0.5</intelia.adaptations.version>
 				<workfusion.version>9.0.0.7</workfusion.version>
+				<com.workfusion.studio.wf.mediator-version>1.0.1-SNAPSHOT</com.workfusion.studio.wf.mediator-version>
+				<control-tower-task-executor.wf-machine.version>9.0.0.b-4</control-tower-task-executor.wf-machine.version>
 			</properties>
 		</profile>
 		
@@ -18,6 +20,8 @@
 				<intelia.version>91</intelia.version>
 				<intelia.adaptations.version>92.0.5</intelia.adaptations.version>
 				<workfusion.version>9.1.0.5</workfusion.version>
+				<com.workfusion.studio.wf.mediator-version>1.0.1-SNAPSHOT</com.workfusion.studio.wf.mediator-version>
+				<control-tower-task-executor.wf-machine.version>9.1.0.b-4</control-tower-task-executor.wf-machine.version>
 			</properties>
 		</profile>
 
@@ -30,6 +34,8 @@
 				<intelia.version>92</intelia.version>
 				<intelia.adaptations.version>92.0.5</intelia.adaptations.version>
 				<workfusion.version>9.2.0.3</workfusion.version>
+				<com.workfusion.studio.wf.mediator-version>1.0.1-SNAPSHOT</com.workfusion.studio.wf.mediator-version>
+				<control-tower-task-executor.wf-machine.version>9.2.0.b-2</control-tower-task-executor.wf-machine.version>
 			</properties>
 		</profile>
 		
@@ -39,6 +45,8 @@
 				<intelia.version>93</intelia.version>
 				<intelia.adaptations.version>92.0.5</intelia.adaptations.version>
 				<workfusion.version>9.3.0.0</workfusion.version>
+				<com.workfusion.studio.wf.mediator-version>1.0.1-SNAPSHOT</com.workfusion.studio.wf.mediator-version>
+				<control-tower-task-executor.wf-machine.version>9.3.0.b-2</control-tower-task-executor.wf-machine.version>
 			</properties>
 		</profile>
 	</profiles>
@@ -126,7 +134,27 @@
 			<artifactId>assertj-core</artifactId>
 			<version>${assertj.version}</version>
 			<scope>test</scope>
-		</dependency>		
+		</dependency>
+
+		<dependency>
+			<groupId>com.workfusion.studio</groupId>
+			<artifactId>com.workfusion.studio.wf.mediator</artifactId>
+			<version>${com.workfusion.studio.wf.mediator-version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.workfusion.studio</groupId>
+			<artifactId>control-tower-task-executor.wf-machine</artifactId>
+			<version>${control-tower-task-executor.wf-machine.version}</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>log4j-over-slf4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -345,18 +373,26 @@
 
 	<repositories>
 		<repository>
+			<id>temp-snapshots</id>
+			<url>${env.TEMP_REPO_URL}/snapshots</url>
+		</repository>
+		<repository>
+			<id>temp-releases</id>
+			<url>${env.TEMP_REPO_URL}/releases</url>
+		</repository>
+		<repository>
 			<id>central</id>
 			<url>${env.MAVEN_REPO_URL}/maven-public</url>
 		</repository>
 		<repository>
 			<!-- WF machine build's dependencies fix -->
 			<id>local-nexus</id>
-			<url>${env.MAVEN_REPO_URL}/maven-public</url>
+			<url>${env.MAVEN_REPO_URL}/local-mcb-repo</url>
 		</repository>
 		<repository>
 			<!-- WF machine build's dependencies fix -->
 			<id>jboss-snapshot</id>
-			<url>${env.MAVEN_REPO_URL}/maven-public</url>
+			<url>${env.MAVEN_REPO_URL}/local-mcb-repo</url>
 		</repository>
 	</repositories>
 
