@@ -2,46 +2,46 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <profiles>
-        <profile>
-            <id>wf90</id>
-            <properties>
-                <intelia.version>90</intelia.version>
-                <intelia.adaptations.version>${intelia.version}.0.6</intelia.adaptations.version>
-                <workfusion.version>9.0.0.7</workfusion.version>
-            </properties>
-        </profile>
+	<profiles>
+		<profile>
+			<id>wf90</id>
+			<properties>
+				<intelia.version>90</intelia.version>
+				<intelia.adaptations.version>90.0.6</intelia.adaptations.version>
+				<workfusion.version>9.0.0.7</workfusion.version>
+			</properties>
+		</profile>
 
-        <profile>
-            <id>wf91</id>
-            <properties>
-                <intelia.version>91</intelia.version>
-                <intelia.adaptations.version>${intelia.version}.0.6</intelia.adaptations.version>
-                <workfusion.version>9.1.0.5</workfusion.version>
-            </properties>
-        </profile>
+		<profile>
+			<id>wf91</id>
+			<properties>
+				<intelia.version>91</intelia.version>
+				<intelia.adaptations.version>92.0.6</intelia.adaptations.version>
+				<workfusion.version>9.1.0.5</workfusion.version>
+			</properties>
+		</profile>
 
-        <profile>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <id>wf92</id>
-            <properties>
-                <intelia.version>92</intelia.version>
-                <intelia.adaptations.version>${intelia.version}.0.6</intelia.adaptations.version>
-                <workfusion.version>9.2.0.3</workfusion.version>
-            </properties>
-        </profile>
+		<profile>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<id>wf92</id>
+			<properties>
+				<intelia.version>92</intelia.version>
+				<intelia.adaptations.version>92.0.6</intelia.adaptations.version>
+				<workfusion.version>9.2.0.3</workfusion.version>
+			</properties>
+		</profile>
 
-        <profile>
-            <id>wf93</id>
-            <properties>
-                <intelia.version>93</intelia.version>
-                <intelia.adaptations.version>${intelia.version}.0.6</intelia.adaptations.version>
-                <workfusion.version>9.3.0.0</workfusion.version>
-            </properties>
-        </profile>
-    </profiles>
+		<profile>
+			<id>wf93</id>
+			<properties>
+				<intelia.version>93</intelia.version>
+				<intelia.adaptations.version>92.0.6</intelia.adaptations.version>
+				<workfusion.version>9.3.0.0</workfusion.version>
+			</properties>
+		</profile>
+	</profiles>
 
     <groupId>com.ibagroup.wf</groupId>
     <artifactId>intelia-core</artifactId>
