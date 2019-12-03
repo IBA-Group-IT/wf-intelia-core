@@ -4,7 +4,8 @@
 package com.ibagroup.wf.intelia.core.robots.factory;
 
 import java.lang.reflect.Method;
-import org.apache.commons.lang3.StringUtils;
+import java.util.Arrays;
+import org.apache.commons.lang3.ArrayUtils;
 import com.ibagroup.wf.intelia.core.FlowContext;
 import com.ibagroup.wf.intelia.core.annotations.Retry;
 
@@ -30,7 +31,7 @@ public class RetryMethodWrapper extends ChainMethodWrapper {
         Retry retry = invocation.getMethod().getAnnotation(Retry.class);
         int attempts = retry.attempts();
         int delay = retry.delay();
-        String breakOn = retry.breakOn();
+        Class<? extends Throwable>[] breakOn = retry.breakOn();
         int attempt = 0;
 
         Throwable lastThrowable = null;
@@ -40,16 +41,13 @@ public class RetryMethodWrapper extends ChainMethodWrapper {
             } catch (Throwable t) {
                 flowContext.warn("Attempt {} failed with exception", attempt, t);
                 lastThrowable = t;
-                if (StringUtils.isNotBlank(breakOn)) {
-                    String throwableName = t.getClass().getSimpleName();
-                    if (breakOn.contains(throwableName)) {
-                        flowContext.warn("{} thrown - breaking Retry", throwableName);
-                        break;
+                if (ArrayUtils.isNotEmpty(breakOn)) {
+                    if (Arrays.stream(breakOn).anyMatch(bClass -> bClass.isAssignableFrom(t.getClass()))) {
+                        throw new RuntimeException("Retry canceled on show-stopper throwable", lastThrowable);
                     }
                 }
                 attempt++;
                 if (attempt >= attempts) {
-                    flowContext.warn("Final attempt reached - rethrowing");
                     break;
                 }
             }
@@ -63,8 +61,7 @@ public class RetryMethodWrapper extends ChainMethodWrapper {
             }
             flowContext.warn("Retrying again");
         }
-        throw lastThrowable instanceof RuntimeException ? ((RuntimeException) lastThrowable) : new RuntimeException(lastThrowable);
+        throw new RuntimeException("Final Retry attempt reached - rethrowing", lastThrowable);
     }
-
 
 }

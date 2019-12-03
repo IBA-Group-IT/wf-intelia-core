@@ -19,5 +19,5 @@ public @interface Retry {
 
     int delay() default 1000;
 
-    String breakOn() default "";
+    Class<? extends Throwable>[] breakOn() default {};
 }
