@@ -16,6 +16,7 @@ import com.ibagroup.wf.intelia.core.robots.factory.ChainMethodWrapper;
 import com.ibagroup.wf.intelia.core.robots.factory.LoggerDetailsWrapper;
 import com.ibagroup.wf.intelia.core.robots.factory.LoggerMethodWrapper;
 import com.ibagroup.wf.intelia.core.robots.factory.PerformMethodWrapper;
+import com.ibagroup.wf.intelia.core.robots.factory.RetryMethodWrapper;
 import com.ibagroup.wf.intelia.core.robots.factory.SecurityMethodWrapper;
 import com.ibagroup.wf.intelia.core.robots.factory.StoreLogsAtExitMethodWrapper;
 import com.ibagroup.wf.intelia.core.security.SecurityUtils;
@@ -51,7 +52,7 @@ public class PerformMethodWrapperModule implements Module {
 
     @Provides
     @Singleton
-    public ChainMethodWrapper chainMethodWrapper(SecurityUtils securityUtils, MetadataManager metadataManager,
+    public ChainMethodWrapper chainMethodWrapper(FlowContext flowContext, SecurityUtils securityUtils, MetadataManager metadataManager,
             @Named("uploadAfterEachPerform") boolean uploadAfterEachPerform, @Named("uploadAfterFailure") boolean uploadAfterFailure,
             @Named(DO_NOT_RETHROW_EXCEPTION_PARAM_NAME) boolean doNotReThrowException, @Named("IRobotLogger") Optional<IRobotLogger> robotLogger,
             @Named("ExceptionHandler") Optional<ExceptionHandler> exceptionHandler,
@@ -68,9 +69,10 @@ public class PerformMethodWrapperModule implements Module {
                     new StoreLogsAtExitMethodWrapper(robotLogger.get()).setInner(new LoggerDetailsWrapper(robotLogger.get())).setInner(new LoggerMethodWrapper(robotLogger.get()));
         }
 
-        chainMethodWrapper = setInner(chainMethodWrapper,
-                new PerformMethodWrapper(uploadAfterEachPerform, uploadAfterFailure, doNotReThrowException, metadataPermanentStorage.orElse(null), exceptionHandler.orElse(null),
-                        metadataManager));
+        chainMethodWrapper = setInner(chainMethodWrapper, new RetryMethodWrapper(flowContext));
+
+        chainMethodWrapper = setInner(chainMethodWrapper, new PerformMethodWrapper(uploadAfterEachPerform, uploadAfterFailure, doNotReThrowException,
+                metadataPermanentStorage.orElse(null), exceptionHandler.orElse(null), metadataManager));
 
         // TODO decide if that to be configurable
         chainMethodWrapper = setInner(chainMethodWrapper, new SecurityMethodWrapper(securityUtils));
