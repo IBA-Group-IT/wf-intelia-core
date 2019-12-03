@@ -82,7 +82,7 @@ public class RobotsFactory {
                         try {
                             return chainMethodWrapper.verifyAndWrap(new Invocation(self, thisMethod, proceed, args));
                         } catch (Throwable cause) {
-                            logger.error("Failed to invoke method " + thisMethod.getName() + "on" + self.getClass().getName(), cause);
+                            logger.error("Failed to invoke method " + thisMethod.getName() + " on " + self.getClass().getName(), cause);
                             throw cause;
                         }
                     }
