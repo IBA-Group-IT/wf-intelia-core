@@ -43,7 +43,7 @@ public class RetryMethodWrapper extends ChainMethodWrapper {
                 lastThrowable = t;
                 if (ArrayUtils.isNotEmpty(breakOn)) {
                     if (Arrays.stream(breakOn).anyMatch(bClass -> bClass.isAssignableFrom(t.getClass()))) {
-                        throw new RuntimeException("Retry canceled on show-stopper throwable", lastThrowable);
+                        throw lastThrowable;
                     }
                 }
                 attempt++;
@@ -61,7 +61,7 @@ public class RetryMethodWrapper extends ChainMethodWrapper {
             }
             flowContext.warn("Retrying again");
         }
-        throw new RuntimeException("Final Retry attempt reached - rethrowing", lastThrowable);
+        throw lastThrowable;
     }
 
 }
