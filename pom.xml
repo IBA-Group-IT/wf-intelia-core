@@ -46,7 +46,7 @@
     <groupId>com.ibagroup.wf</groupId>
     <artifactId>intelia-core</artifactId>
     <packaging>jar</packaging>
-    <version>${intelia.version}.0.29</version>
+    <version>${intelia.version}.0.30</version>
 
     <name>Intelia Core Project</name>
 

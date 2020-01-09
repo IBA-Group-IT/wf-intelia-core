@@ -30,17 +30,20 @@ public class BaseDS {
     public final static String DEFAULT_DATASTORE_PARAM_NAME = "ds_name";
 
     protected FlowContext flowContext;
-    
     private List<Map<String, String>> all;
-    
     private String dataStoreName;
-    
     private DataStoreAccessor dsAccessor;
+    private boolean create = false;
 
     @Inject
     public BaseDS(FlowContext flowContext, @Named(DEFAULT_DATASTORE_PARAM_NAME) String dataStoreName) {
         this.flowContext = flowContext;
         this.dataStoreName = dataStoreName;
+    }
+
+    public BaseDS(FlowContext flowContext, String dataStoreName, boolean create) {
+        this(flowContext, dataStoreName);
+        this.create = create;
     }
 
     /**
@@ -60,7 +63,7 @@ public class BaseDS {
 
     public DataStoreAccessor getDsAccessor() {
         if (dsAccessor == null) {
-            dsAccessor = new DataStoreAccessor(flowContext, getDSName());
+            dsAccessor = new DataStoreAccessor(flowContext, getDSName(), create);
         }
         return dsAccessor;
     }
